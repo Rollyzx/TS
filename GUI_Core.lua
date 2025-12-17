@@ -1527,6 +1527,27 @@ function sections:CreateSubtabs(Properties)
     self.SubtabsHolder.Size = UDim2.new(1, 0, 0, totalHeight)
     self.SubtabsHolder.ClipsDescendants = true
     
+    -- 🔥 SISTEMA DE CONTROL DE SCROLL
+    local isMouseOverSubtab = false
+    local parentScrollFrame = self.Holder
+    
+    -- Función para desactivar scroll del padre
+    local function disableParentScroll()
+        if parentScrollFrame and parentScrollFrame:IsA("ScrollingFrame") then
+            parentScrollFrame.ScrollingEnabled = false
+        end
+    end
+    
+    -- Función para reactivar scroll del padre
+    local function enableParentScroll()
+        if parentScrollFrame and parentScrollFrame:IsA("ScrollingFrame") then
+            parentScrollFrame.ScrollingEnabled = true
+        end
+    end
+    
+    self.SubtabsHolder.Size = UDim2.new(1, 0, 0, totalHeight)
+    self.SubtabsHolder.ClipsDescendants = true
+    
     for i, tabName in ipairs(Subtabs) do
         -- ========== CONTENEDOR PRINCIPAL (CON EXTRA PARA FLECHAS) ==========
         local SubtabMainContainer = utility:RenderObject("Frame", {
@@ -5583,3 +5604,4 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
+
