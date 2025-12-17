@@ -88,6 +88,9 @@
 	local tws = game:GetService("TweenService")
 	local uis = game:GetService("UserInputService")
 	local cre = game:GetService("CoreGui")
+    local RunService = game:GetService("RunService")  -- ✅ AGREGAR ESTA LÍNEA
+    local Players = game:GetService("Players")         -- ✅ AGREGAR ESTA LÍNEA
+    local Workspace = game:GetService("Workspace")     -- ✅ AGREGAR ESTA LÍNEA
 	-- [[ // Functions // ]]
 	function utility:RenderObject(RenderType, RenderProperties, RenderHidden)
 		local Render = Instance.new(RenderType)
@@ -5052,6 +5055,191 @@ do
 		end
 	end
 	
-end)
-return library
+end
 
+-- ============================================================================
+-- SISTEMA DE ESP PARA CAJAS FUERTES
+-- ============================================================================
+
+-- Variables globales del Safe ESP
+_G.SafeESPSettings = {
+    Enabled = false,
+    MaxDistance = 2000,
+    Color = Color3.fromRGB(255, 215, 0),
+    ShowDistance = true,
+    TextSize = 18,
+    TrackedSafes = {}
+}
+
+-- Función para identificar cajas fuertes
+local function isSafe(model)
+    if not model:IsA("Model") then return false end
+    
+    -- Método 1: Por MeshId específico
+    local meshPart = model:FindFirstChildOfClass("MeshPart", true)
+    if meshPart and meshPart.MeshId == "rbxassetid://13895292237" then
+        return true
+    end
+    
+    -- Método 2: Por estructura de partes
+    local requiredParts = {"Bolts", "Dials", "Hinge", "Pins", "Wheel", "Body"}
+    local foundCount = 0
+    
+    for _, partName in ipairs(requiredParts) do
+        if model:FindFirstChild(partName) then
+            foundCount = foundCount + 1
+        end
+    end
+    
+    if foundCount >= 4 then return true end
+    
+    -- Método 3: Por material y color
+    local body = model:FindFirstChild("Body")
+    if body and body:IsA("MeshPart") then
+        local color = body.Color
+        local r, g, b = math.floor(color.R * 255), math.floor(color.G * 255), math.floor(color.B * 255)
+        
+        if body.Material == Enum.Material.CorrodedMetal and
+           r >= 130 and r <= 150 and
+           g >= 130 and g <= 150 and
+           b >= 130 and b <= 150 then
+            return true
+        end
+    end
+    
+    return false
+end
+
+-- Función para obtener la parte principal
+local function getMainPart(model)
+    return model:FindFirstChild("Body") or
+           model:FindFirstChild("Wheel") or
+           model.PrimaryPart or
+           model:FindFirstChildWhichIsA("BasePart")
+end
+
+-- Función para crear ESP en una caja fuerte
+local function createSafeESP(model)
+    if not _G.SafeESPSettings.Enabled then return end
+    if not model or not model.Parent then return end
+    if _G.SafeESPSettings.TrackedSafes[model] then return end
+    
+    if isSafe(model) then
+        local mainPart = getMainPart(model)
+        
+        if mainPart then
+            local textDrawing = Drawing.new("Text")
+            textDrawing.Text = "Safe"
+            textDrawing.Size = _G.SafeESPSettings.TextSize
+            textDrawing.Color = _G.SafeESPSettings.Color
+            textDrawing.Center = true
+            textDrawing.Outline = true
+            textDrawing.OutlineColor = Color3.new(0, 0, 0)
+            textDrawing.Visible = false
+            textDrawing.ZIndex = 3
+            
+            _G.SafeESPSettings.TrackedSafes[model] = {
+                drawing = textDrawing,
+                part = mainPart
+            }
+            
+            model.Destroying:Connect(function()
+                if _G.SafeESPSettings.TrackedSafes[model] then
+                    _G.SafeESPSettings.TrackedSafes[model].drawing:Remove()
+                    _G.SafeESPSettings.TrackedSafes[model] = nil
+                end
+            end)
+        end
+    end
+end
+
+-- Escanear todas las cajas fuertes
+local function scanAllSafes()
+    if not _G.SafeESPSettings.Enabled then return end
+    
+    for _, model in ipairs(Workspace:GetChildren()) do
+        if model:IsA("Model") then
+            createSafeESP(model)
+        end
+    end
+    
+    local folders = {"Items", "Loot", "Interactables", "Props", "Map"}
+    for _, folderName in ipairs(folders) do
+        local folder = Workspace:FindFirstChild(folderName)
+        if folder then
+            for _, model in ipairs(folder:GetDescendants()) do
+                if model:IsA("Model") then
+                    createSafeESP(model)
+                end
+            end
+        end
+    end
+end
+
+-- Limpiar todo el ESP
+local function clearAllSafeESP()
+    for model, data in pairs(_G.SafeESPSettings.TrackedSafes) do
+        pcall(function()
+            data.drawing:Remove()
+        end)
+    end
+    _G.SafeESPSettings.TrackedSafes = {}
+end
+
+-- Detectar nuevas cajas fuertes
+Workspace.DescendantAdded:Connect(function(descendant)
+    task.wait(0.1)
+    if descendant:IsA("Model") then
+        createSafeESP(descendant)
+    end
+end)
+
+-- Actualizar ESP en cada frame
+local updateCounter = 0
+RunService.RenderStepped:Connect(function()
+    if _G.SafeESPSettings.Enabled then
+        updateCounter = updateCounter + 1
+        
+        if updateCounter % 200 == 0 then
+            scanAllSafes()
+        end
+        
+        for model, data in pairs(_G.SafeESPSettings.TrackedSafes) do
+            if model and model.Parent and data.part and data.part.Parent then
+                local distance = (camera.CFrame.Position - data.part.Position).Magnitude
+                
+                if distance <= _G.SafeESPSettings.MaxDistance then
+                    local screenPos, onScreen = camera:WorldToViewportPoint(data.part.Position)
+                    
+                    if onScreen then
+                        data.drawing.Position = Vector2.new(screenPos.X, screenPos.Y - 20)
+                        data.drawing.Color = _G.SafeESPSettings.Color
+                        data.drawing.Size = _G.SafeESPSettings.TextSize
+                        
+                        if _G.SafeESPSettings.ShowDistance then
+                            data.drawing.Text = string.format("Safe [%dm]", math.floor(distance))
+                        else
+                            data.drawing.Text = "Safe"
+                        end
+                        
+                        data.drawing.Visible = true
+                    else
+                        data.drawing.Visible = false
+                    end
+                else
+                    data.drawing.Visible = false
+                end
+            else
+                pcall(function()
+                    data.drawing:Remove()
+                end)
+                _G.SafeESPSettings.TrackedSafes[model] = nil
+            end
+        end
+    else
+        for _, data in pairs(_G.SafeESPSettings.TrackedSafes) do
+            data.drawing.Visible = false
+        end
+    end
+end)
+return library  -- ✅ Retornar la tabla
