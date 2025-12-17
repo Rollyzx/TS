@@ -1506,6 +1506,9 @@ end
 -- ============================================================================
 -- FUNCIÓN CORREGIDA: CreateSubtabs con SCROLL COMPLETO
 -- ============================================================================
+-- ============================================================================
+-- FUNCIÓN CORREGIDA: CreateSubtabs con SCROLL SIN CONFLICTOS
+-- ============================================================================
 function sections:CreateSubtabs(Properties)
     Properties = Properties or {}
     
@@ -1527,29 +1530,11 @@ function sections:CreateSubtabs(Properties)
     self.SubtabsHolder.Size = UDim2.new(1, 0, 0, totalHeight)
     self.SubtabsHolder.ClipsDescendants = true
     
-    -- 🔥 SISTEMA DE CONTROL DE SCROLL
-    local isMouseOverSubtab = false
-    local parentScrollFrame = self.Holder
-    
-    -- Función para desactivar scroll del padre
-    local function disableParentScroll()
-        if parentScrollFrame and parentScrollFrame:IsA("ScrollingFrame") then
-            parentScrollFrame.ScrollingEnabled = false
-        end
-    end
-    
-    -- Función para reactivar scroll del padre
-    local function enableParentScroll()
-        if parentScrollFrame and parentScrollFrame:IsA("ScrollingFrame") then
-            parentScrollFrame.ScrollingEnabled = true
-        end
-    end
-    
-    self.SubtabsHolder.Size = UDim2.new(1, 0, 0, totalHeight)
-    self.SubtabsHolder.ClipsDescendants = true
+    -- 🔥 REFERENCIA AL SCROLL PADRE (Left o Right)
+    local parentScrollFrame = self.Holder.Parent
     
     for i, tabName in ipairs(Subtabs) do
-        -- ========== CONTENEDOR PRINCIPAL (CON EXTRA PARA FLECHAS) ==========
+        -- ========== CONTENEDOR PRINCIPAL ==========
         local SubtabMainContainer = utility:RenderObject("Frame", {
             BackgroundColor3 = Color3.fromRGB(0, 0, 0),
             BackgroundTransparency = 1,
@@ -1563,7 +1548,7 @@ function sections:CreateSubtabs(Properties)
             RenderTime = 0.15
         })
         
-        -- ========== SCROLLING FRAME (CONTENEDOR REAL DEL CONTENIDO) ==========
+        -- ========== SCROLLING FRAME (CONTENEDOR DEL CONTENIDO) ==========
         local SubtabScrollFrame = utility:RenderObject("ScrollingFrame", {
             BackgroundColor3 = Color3.fromRGB(0, 0, 0),
             BackgroundTransparency = 1,
@@ -1574,16 +1559,50 @@ function sections:CreateSubtabs(Properties)
             Size = UDim2.new(1, 0, 1, 0),
             ZIndex = 4,
             AutomaticCanvasSize = Enum.AutomaticSize.Y,
-            BottomImage = "rbxassetid://7783554086",
             CanvasSize = UDim2.new(0, 0, 0, 0),
-            MidImage = "rbxassetid://7783554086",
+            ScrollBarThickness = 5,
             ScrollBarImageColor3 = Color3.fromRGB(65, 65, 65),
             ScrollBarImageTransparency = 0,
-            ScrollBarThickness = 5,
+            BottomImage = "rbxassetid://7783554086",
+            MidImage = "rbxassetid://7783554086",
             TopImage = "rbxassetid://7783554086",
             VerticalScrollBarInset = "None",
+            Active = true, -- ✅ IMPORTANTE: Permite capturar eventos
+            ScrollingEnabled = true,
             RenderTime = 0.15
         })
+        
+        -- ========== 🔥 FIX: DESACTIVAR SCROLL PADRE CUANDO MOUSE SOBRE SUBTAB ==========
+        local mouseOverSubtab = false
+        
+        SubtabScrollFrame.MouseEnter:Connect(function()
+            mouseOverSubtab = true
+            -- Deshabilitar scroll del padre temporalmente
+            if parentScrollFrame and parentScrollFrame:IsA("ScrollingFrame") then
+                parentScrollFrame.ScrollingEnabled = false
+            end
+        end)
+        
+        SubtabScrollFrame.MouseLeave:Connect(function()
+            mouseOverSubtab = false
+            -- Rehabilitar scroll del padre
+            task.wait(0.05) -- Pequeño delay para evitar activación inmediata
+            if parentScrollFrame and parentScrollFrame:IsA("ScrollingFrame") then
+                parentScrollFrame.ScrollingEnabled = true
+            end
+        end)
+        
+        -- ========== 🔥 FIX: DETECTAR CUANDO EL SUBTAB NECESITA SCROLL ==========
+        SubtabScrollFrame:GetPropertyChangedSignal("AbsoluteCanvasSize"):Connect(function()
+            local needsScroll = SubtabScrollFrame.AbsoluteCanvasSize.Y > SubtabScrollFrame.AbsoluteWindowSize.Y
+            
+            -- Si el subtab NO necesita scroll, no bloquear el scroll padre
+            if not needsScroll and mouseOverSubtab then
+                if parentScrollFrame and parentScrollFrame:IsA("ScrollingFrame") then
+                    parentScrollFrame.ScrollingEnabled = true
+                end
+            end
+        end)
         
         -- ========== UI LIST LAYOUT ==========
         local SubtabList = utility:RenderObject("UIListLayout", {
@@ -1785,7 +1804,7 @@ function sections:CreateSubtabs(Properties)
         -- ========== GUARDAR REFERENCIAS ==========
         self.Subtabs[i] = {
             Name = tabName,
-            Container = SubtabScrollFrame, -- ✅ CAMBIO CRÍTICO: Ahora es el ScrollingFrame
+            Container = SubtabScrollFrame,
             MainContainer = SubtabMainContainer,
             Button = SubtabButton,
             Indicator = ActiveIndicator,
@@ -5604,4 +5623,5 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
+
 
