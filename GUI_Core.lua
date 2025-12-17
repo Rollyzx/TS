@@ -1107,6 +1107,36 @@ end
 -- ============================================================================
 -- SISTEMA DE SUBTABS - AÑADIR DESPUÉS DE CreateSection
 -- ============================================================================
+function sections:UpdateSectionHeight()
+    if not self.HasSubtabs or not self.CurrentSubtab then return end
+    
+    local currentSubtab = self.Subtabs[self.CurrentSubtab]
+    if not currentSubtab or not currentSubtab.Container then return end
+    
+    -- Esperar a que el contenido se actualice
+    task.wait(0.05)
+    
+    -- Obtener la altura del contenido del subtab activo
+    local contentHeight = currentSubtab.Container.AbsoluteCanvasSize.Y
+    
+    -- Calcular altura de los botones de subtab
+    local buttonHeight = 20
+    local padding = 12
+    local subtabsHeight = buttonHeight + padding
+    
+    -- Calcular altura total necesaria (contenido + botones + padding extra)
+    local totalHeight = contentHeight + subtabsHeight + 30 -- 30 = padding top/bottom del contenido
+    
+    -- Altura mínima y máxima
+    local minHeight = 100
+    local maxHeight = 600
+    totalHeight = math.clamp(totalHeight, minHeight, maxHeight)
+    
+    -- Aplicar la nueva altura al holder principal de la section
+    if self.SectionHolder then
+        self.SectionHolder.Size = UDim2.new(1, 0, 0, totalHeight)
+    end
+end
 
 -- Modificar la función CreateSection para soportar subtabs
 function pages:CreateSection(Properties)
@@ -1119,9 +1149,9 @@ function pages:CreateSection(Properties)
         Content = {},
         Window = self.Window,
         Page = self,
-        Subtabs = {}, -- NUEVO: almacenar subtabs
-        CurrentSubtab = nil, -- NUEVO: subtab actual
-        HasSubtabs = false -- NUEVO: flag para saber si tiene subtabs
+        Subtabs = {},
+        CurrentSubtab = nil,
+        HasSubtabs = false
     }
     
     do
@@ -1385,6 +1415,7 @@ function pages:CreateSection(Properties)
             Section["SubtabsHolder"] = Subtabs_Holder
             Section["SubtabsSeparator"] = Subtabs_Separator
             Section["MainFrame"] = Section_Holder_Frame
+			Section["SectionHolder"] = Section_Holder -- ✅ GUARDAR REFERENCIA AL CONTENEDOR PRINCIPAL
         end
         
         do -- Functions
@@ -1503,13 +1534,6 @@ function sections:CreateSubtabs(Properties)
     self.SubtabsHolder.Size = UDim2.new(1, 0, 0, totalHeight)
     self.SubtabsHolder.ClipsDescendants = true
     
-    -- 🔥 REFERENCIA AL SCROLL PADRE (Left o Right)
-    local parentScrollFrame = self.Holder.Parent
-    
-    -- 🔥 OBTENER AMBOS SCROLLS DE LA PÁGINA (LEFT Y RIGHT)
-    local pageLeftScroll = self.Page.Left
-    local pageRightScroll = self.Page.Right
-    
     for i, tabName in ipairs(Subtabs) do
         -- ========== CONTENEDOR PRINCIPAL ==========
         local SubtabMainContainer = utility:RenderObject("Frame", {
@@ -1544,7 +1568,7 @@ function sections:CreateSubtabs(Properties)
             MidImage = "rbxassetid://7783554086",
             TopImage = "rbxassetid://7783554086",
             VerticalScrollBarInset = "None",
-            Active = true, -- ✅ IMPORTANTE: Permite capturar eventos
+            Active = true,
             ScrollingEnabled = true,
             RenderTime = 0.15
         })
@@ -1718,9 +1742,22 @@ function sections:CreateSubtabs(Properties)
             end
         end)
         
-        utility:CreateConnection(SubtabScrollFrame:GetPropertyChangedSignal("CanvasPosition"), function()
-            ArrowUp.Visible = (SubtabScrollFrame.CanvasPosition.Y > 1)
-            ArrowDown.Visible = (SubtabScrollFrame.CanvasPosition.Y + 1 < (SubtabScrollFrame.AbsoluteCanvasSize.Y - SubtabScrollFrame.AbsoluteSize.Y))
+       utility:CreateConnection(SubtabScrollFrame:GetPropertyChangedSignal("AbsoluteCanvasSize"), function()
+            local needsScroll = SubtabScrollFrame.AbsoluteCanvasSize.Y > SubtabScrollFrame.AbsoluteWindowSize.Y
+            
+            Gradient1.Visible = needsScroll
+            Gradient2.Visible = needsScroll
+            ScrollBar.Visible = needsScroll
+            
+            if needsScroll then
+                ArrowUp.Visible = (SubtabScrollFrame.CanvasPosition.Y > 5)
+                ArrowDown.Visible = (SubtabScrollFrame.CanvasPosition.Y + 5 < (SubtabScrollFrame.AbsoluteCanvasSize.Y - SubtabScrollFrame.AbsoluteSize.Y))
+            end
+            
+            -- ✅ ACTUALIZAR ALTURA DE LA SECTION CUANDO CAMBIE EL CONTENIDO
+            if self.CurrentSubtab == i then
+                self:UpdateSectionHeight()
+            end
         end)
         
         utility:CreateConnection(ArrowUp.MouseButton1Click, function()
@@ -1847,13 +1884,11 @@ function sections:SwitchSubtab(index)
     local tweenService = game:GetService("TweenService")
     local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
     
-    -- 🎨 Desactivar todos con animación
+    -- Desactivar todos con animación
     for i, subtab in ipairs(self.Subtabs) do
-        -- Ocultar contenedor principal inmediatamente
         subtab.MainContainer.Visible = false
         subtab.Active = false
         
-        -- ✅ Animar botón inactivo
         tweenService:Create(subtab.Button, tweenInfo, {
             BackgroundColor3 = Color3.fromRGB(25, 25, 25)
         }):Play()
@@ -1862,7 +1897,6 @@ function sections:SwitchSubtab(index)
             TextColor3 = Color3.fromRGB(155, 155, 155)
         }):Play()
         
-        -- ✅ Fade out del indicador
         if i ~= index and subtab.Indicator.BackgroundTransparency < 1 then
             local fadeTween = tweenService:Create(subtab.Indicator, tweenInfo, {
                 BackgroundTransparency = 1
@@ -1875,12 +1909,11 @@ function sections:SwitchSubtab(index)
         end
     end
     
-    -- 🎨 Activar el seleccionado con animación
+    -- Activar el seleccionado con animación
     local selected = self.Subtabs[index]
     selected.MainContainer.Visible = true
     selected.Active = true
     
-    -- Animar botón activo
     tweenService:Create(selected.Button, tweenInfo, {
         BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     }):Play()
@@ -1889,7 +1922,6 @@ function sections:SwitchSubtab(index)
         TextColor3 = self.Window.Accent
     }):Play()
     
-    -- ✅ Fade in del indicador
     selected.Indicator.Visible = true
     selected.Indicator.BackgroundColor3 = self.Window.Accent
     
@@ -1905,6 +1937,9 @@ function sections:SwitchSubtab(index)
             CanvasPosition = Vector2.new(0, 0)
         }):Play()
     end
+    
+    -- ✅ ACTUALIZAR ALTURA DE LA SECTION AL CAMBIAR DE SUBTAB
+    self:UpdateSectionHeight()
 end
 
 -- ============================================================================
@@ -5600,6 +5635,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
+
 
 
 
