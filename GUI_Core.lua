@@ -2388,34 +2388,36 @@ function sections:CreateToggle(Properties)
                         })
                         
                         -- ========== GRADIENTE HUE ==========
-                        local Hue_Gradient_Frame = utility:RenderObject("Frame", {
-                            BackgroundColor3 = Color3.fromRGB(255, 0, 0),
-                            BackgroundTransparency = 0,
-                            BorderSizePixel = 0,
-                            Parent = Hue_Picker_Outline,
-                            Position = UDim2.new(0, 2, 0, 2),
-                            Size = UDim2.new(1, -4, 1, -4),
-                            ZIndex = 6
-                        })
-                        
-                        local Hue_Gradient_Corner = utility:RenderObject("UICorner", {
-                            CornerRadius = UDim.new(0, 3),
-                            Parent = Hue_Gradient_Frame
-                        })
-                        
-                        local Hue_Gradient = utility:RenderObject("UIGradient", {
-                            Color = ColorSequence.new({
-                                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-                                ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
-                                ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
-                                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
-                                ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),
-                                ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
-                                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
-                            }),
-                            Rotation = 90,
-                            Parent = Hue_Gradient_Frame
-                        })
+						-- ========== GRADIENTE HUE CORREGIDO ==========
+						local Hue_Gradient_Frame = utility:RenderObject("Frame", {
+						    BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+						    BackgroundTransparency = 0,
+						    BorderSizePixel = 0,
+						    Parent = Hue_Picker_Outline,
+						    Position = UDim2.new(0, 2, 0, 2),
+						    Size = UDim2.new(1, -4, 1, -4),
+						    ZIndex = 6
+						})
+						
+						local Hue_Gradient_Corner = utility:RenderObject("UICorner", {
+						    CornerRadius = UDim.new(0, 3),
+						    Parent = Hue_Gradient_Frame
+						})
+						
+						-- ✅ GRADIENTE HUE COMPLETO (Rojo → Amarillo → Verde → Cyan → Azul → Magenta → Rojo)
+						local Hue_Gradient = utility:RenderObject("UIGradient", {
+						    Color = ColorSequence.new({
+						        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 0)),    -- Rojo
+						        ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),  -- Amarillo
+						        ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),    -- Verde
+						        ColorSequenceKeypoint.new(0.50, Color3.fromRGB(0, 255, 255)),  -- Cyan
+						        ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),    -- Azul
+						        ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),  -- Magenta
+						        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 0))     -- Rojo (cierra el ciclo)
+						    }),
+						    Rotation = 90, -- ✅ Vertical (de arriba a abajo)
+						    Parent = Hue_Gradient_Frame
+						})
                         
                         -- ========== CURSOR HUE ==========
                         local Hue_Cursor = utility:RenderObject("Frame", {
@@ -5812,4 +5814,5 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
+
 
