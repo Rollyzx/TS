@@ -719,423 +719,390 @@ function applyTheme(window, colors)
     end
 end
 
-	function library:CreatePage(Properties)
-		Properties = Properties or {}
-		--
-		local Page = {
-			Image = (Properties.image or Properties.Image or Properties.icon or Properties.Icon),
-			Size = (Properties.size or Properties.Size or UDim2.new(0, 50, 0, 50)),
-			Open = false,
-			Window = self
-		}
-		--
-		do
-			local Page_Tab = utility:RenderObject("Frame", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page.Window["TabsHolder"],
-				Size = UDim2.new(1, 0, 0, 72)
-			})
-			-- //
-			local Page_Tab_Border = utility:RenderObject("Frame", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 0,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Tab,
-				Size = UDim2.new(1, 0, 1, 0),
-				Visible = false,
-				ZIndex = 2,
-				RenderTime = 0.15
-			})
-			--
-			local Page_Tab_Image = utility:RenderObject("ImageLabel", {
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Tab,
-				Position = UDim2.new(0.5, 0, 0.5, 0),
-				Size = Page.Size,
-				ZIndex = 2,
-				Image = Page.Image,
-				ImageColor3 = Color3.fromRGB(100, 100, 100)
-			})
-			--
-			local Page_Tab_Button = utility:RenderObject("TextButton", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Tab,
-				Size = UDim2.new(1, 0, 1, 0),
-				Text = ""
-			})
-			-- //
-			local Tab_Border_Inner = utility:RenderObject("Frame", {
-				BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-				BackgroundTransparency = 0,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Tab_Border,
-				Position = UDim2.new(0, 0, 0, 1),
-				Size = UDim2.new(1, 1, 1, -2),
-				ZIndex = 2,
-				RenderTime = 0.15
-			})
-			-- //
-			local Border_Inner_Inner = utility:RenderObject("Frame", {
-				BackgroundColor3 = Color3.fromRGB(20, 20, 20),
-				BackgroundTransparency = 0,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Tab_Border_Inner,
-				Position = UDim2.new(0, 0, 0, 1),
-				Size = UDim2.new(1, 0, 1, -2),
-				ZIndex = 2,
-				RenderTime = 0.15
-			})
-			--
-			local Inner_Inner_Pattern = utility:RenderObject("ImageLabel", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Border_Inner_Inner,
-				Position = UDim2.new(0, 0, 0, 0),
-				Size = UDim2.new(1, 0, 1, 0),
-				Image = "rbxassetid://8509210785",
-				ImageColor3 = Color3.fromRGB(12, 12, 12),
-				ScaleType = "Tile",
-				TileSize = UDim2.new(0, 8, 0, 8),
-				ZIndex = 2
-			})
-			-- //
-			local Page_Page = utility:RenderObject("Frame", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page.Window["PagesHolder"],
-				Position = UDim2.new(0, 20, 0, 20),
-				Size = UDim2.new(1, -40, 1, -40),
-				Visible = false
-			})
-			-- //
-			local Page_Page_Left = utility:RenderObject("Frame", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page,
-				Position = UDim2.new(0, 0, 0, 0),
-				Size = UDim2.new(0.5, -10, 1, 0)
-			})
-			--
-			local Page_Page_Right_Container = utility:RenderObject("Frame", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page,
-				Position = UDim2.new(0.5, 10, 0, 0),
-				Size = UDim2.new(0.5, -10, 1, 0)
-			})
-			
-			local Page_Page_Right = utility:RenderObject("ScrollingFrame", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page_Right_Container,
-				Position = UDim2.new(0, 0, 0, 0),
-				Size = UDim2.new(1, 0, 1, 0),
-				ZIndex = 2,
-				AutomaticCanvasSize = Enum.AutomaticSize.Y,
-				CanvasSize = UDim2.new(0, 0, 0, 0),
-				ScrollBarThickness = 5,
-				ScrollBarImageColor3 = Color3.fromRGB(65, 65, 65),
-				ScrollBarImageTransparency = 0,
-				BottomImage = "rbxassetid://7783554086",
-				MidImage = "rbxassetid://7783554086",
-				TopImage = "rbxassetid://7783554086",
-				VerticalScrollBarInset = "ScrollBar"
-			})
-			
-			-- Gradientes y flechas para Right
-			local Right_Gradient1 = utility:RenderObject("ImageLabel", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page_Right_Container,
-				Position = UDim2.new(0, 0, 0, 0),
-				Rotation = 180,
-				Size = UDim2.new(1, 0, 0, 20),
-				Visible = false,
-				ZIndex = 4,
-				Image = "rbxassetid://7783533907",
-				ImageColor3 = Color3.fromRGB(20, 20, 20)
-			})
-			
-			local Right_Gradient2 = utility:RenderObject("ImageLabel", {
-				AnchorPoint = Vector2.new(0, 1),
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page_Right_Container,
-				Position = UDim2.new(0, 0, 1, 0),
-				Size = UDim2.new(1, 0, 0, 20),
-				Visible = false,
-				ZIndex = 4,
-				Image = "rbxassetid://7783533907",
-				ImageColor3 = Color3.fromRGB(20, 20, 20)
-			})
-			
-			local Right_ArrowUp = utility:RenderObject("TextButton", {
-				BackgroundColor3 = Color3.fromRGB(255, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page_Right_Container,
-				Position = UDim2.new(1, -21, 0, 0),
-				Size = UDim2.new(0, 15, 0, 14),
-				Text = "",
-				Visible = false,
-				ZIndex = 4
-			})
-			
-			local Right_ArrowUp_Image = utility:RenderObject("ImageLabel", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Right_ArrowUp,
-				Position = UDim2.new(0, 4, 0, 4),
-				Size = UDim2.new(0, 7, 0, 6),
-				ZIndex = 4,
-				Image = "rbxassetid://8548757311",
-				ImageColor3 = Color3.fromRGB(205, 205, 205)
-			})
-			
-			local Right_ArrowDown = utility:RenderObject("TextButton", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page_Right_Container,
-				Position = UDim2.new(1, -21, 1, -14),
-				Size = UDim2.new(0, 15, 0, 14),
-				Text = "",
-				Visible = false,
-				ZIndex = 4
-			})
-			
-			local Right_ArrowDown_Image = utility:RenderObject("ImageLabel", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Right_ArrowDown,
-				Position = UDim2.new(0, 4, 0, 4),
-				Size = UDim2.new(0, 7, 0, 6),
-				ZIndex = 4,
-				Image = "rbxassetid://8548723563",
-				ImageColor3 = Color3.fromRGB(205, 205, 205)
-			})
-			-- //
-			local Page_Page_Left_Container = utility:RenderObject("Frame", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page,
-				Position = UDim2.new(0, 0, 0, 0),
-				Size = UDim2.new(0.5, -10, 1, 0)
-			})
-			
-			local Page_Page_Left = utility:RenderObject("ScrollingFrame", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page_Left_Container,
-				Position = UDim2.new(0, 0, 0, 0),
-				Size = UDim2.new(1, 0, 1, 0),
-				ZIndex = 2,
-				AutomaticCanvasSize = Enum.AutomaticSize.Y,
-				CanvasSize = UDim2.new(0, 0, 0, 0),
-				ScrollBarThickness = 5,
-				ScrollBarImageColor3 = Color3.fromRGB(65, 65, 65),
-				ScrollBarImageTransparency = 0,
-				BottomImage = "rbxassetid://7783554086",
-				MidImage = "rbxassetid://7783554086",
-				TopImage = "rbxassetid://7783554086",
-				VerticalScrollBarInset = "ScrollBar"
-			})
-			
-			-- Gradientes y flechas para Left
-			local Left_Gradient1 = utility:RenderObject("ImageLabel", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page_Left_Container,
-				Position = UDim2.new(0, 0, 0, 0),
-				Rotation = 180,
-				Size = UDim2.new(1, 0, 0, 20),
-				Visible = false,
-				ZIndex = 4,
-				Image = "rbxassetid://7783533907",
-				ImageColor3 = Color3.fromRGB(20, 20, 20)
-			})
-			
-			local Left_Gradient2 = utility:RenderObject("ImageLabel", {
-				AnchorPoint = Vector2.new(0, 1),
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page_Left_Container,
-				Position = UDim2.new(0, 0, 1, 0),
-				Size = UDim2.new(1, 0, 0, 20),
-				Visible = false,
-				ZIndex = 4,
-				Image = "rbxassetid://7783533907",
-				ImageColor3 = Color3.fromRGB(20, 20, 20)
-			})
-			
-			local Left_ArrowUp = utility:RenderObject("TextButton", {
-				BackgroundColor3 = Color3.fromRGB(255, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page_Left_Container,
-				Position = UDim2.new(1, -21, 0, 0),
-				Size = UDim2.new(0, 15, 0, 14),
-				Text = "",
-				Visible = false,
-				ZIndex = 4
-			})
-			
-			local Left_ArrowUp_Image = utility:RenderObject("ImageLabel", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Left_ArrowUp,
-				Position = UDim2.new(0, 4, 0, 4),
-				Size = UDim2.new(0, 7, 0, 6),
-				ZIndex = 4,
-				Image = "rbxassetid://8548757311",
-				ImageColor3 = Color3.fromRGB(205, 205, 205)
-			})
-			
-			local Left_ArrowDown = utility:RenderObject("TextButton", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Page_Page_Left_Container,
-				Position = UDim2.new(1, -21, 1, -14),
-				Size = UDim2.new(0, 15, 0, 14),
-				Text = "",
-				Visible = false,
-				ZIndex = 4
-			})
-			
-			local Left_ArrowDown_Image = utility:RenderObject("ImageLabel", {
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 1,
-				BorderColor3 = Color3.fromRGB(0, 0, 0),
-				BorderSizePixel = 0,
-				Parent = Left_ArrowDown,
-				Position = UDim2.new(0, 4, 0, 4),
-				Size = UDim2.new(0, 7, 0, 6),
-				ZIndex = 4,
-				Image = "rbxassetid://8548723563",
-				ImageColor3 = Color3.fromRGB(205, 205, 205)
-			})
-			
-			--
-			-- ========== UI LAYOUTS ==========
-			local Page_Left_List = utility:RenderObject("UIListLayout", {
-				Padding = UDim.new(0, 18),
-				Parent = Page_Page_Left,
-				FillDirection = "Vertical",
-				HorizontalAlignment = "Left",
-				VerticalAlignment = "Top"
-			})
-			
-			local Page_Left_Padding = utility:RenderObject("UIPadding", {
-				Parent = Page_Page_Left,
-				PaddingTop = UDim.new(0, 10),
-				PaddingBottom = UDim.new(0, 10),
-				PaddingLeft = UDim.new(0, 0),
-				PaddingRight = UDim.new(0, 8)
-			})
-			
-			local Page_Right_List = utility:RenderObject("UIListLayout", {
-				Padding = UDim.new(0, 18),
-				Parent = Page_Page_Right,
-				FillDirection = "Vertical",
-				HorizontalAlignment = "Left",
-				VerticalAlignment = "Top"
-			})
-			
-			local Page_Right_Padding = utility:RenderObject("UIPadding", {
-				Parent = Page_Page_Right,
-				PaddingTop = UDim.new(0, 10),
-				PaddingBottom = UDim.new(0, 10),
-				PaddingLeft = UDim.new(0, 0),
-				PaddingRight = UDim.new(0, 8)
-			})
-			--
-			do -- // Index Setting
-				Page["Page"] = Page_Page
-				Page["Left"] = Page_Page_Left
-				Page["Right"] = Page_Page_Right
-			end
-			--
-			do -- // Functions
-				function Page:Set(state)
-					Page.Open = state
-					--
-					Page_Page.Visible = Page.Open
-					Page_Tab_Border.Visible = Page.Open
-					Page_Tab_Image.ImageColor3 = Page.Open and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(90, 90, 90)
-					--
-					if Page.Open then
-						Page.Window:SetPage(Page)
-					end
-				end
-			end
-			--
-			do -- // Connections
-				utility:CreateConnection(Page_Tab_Button.MouseButton1Click, function(Input)
-					if not Page.Open then
-						Page:Set(true)
-					end
-				end)
-				--
-				utility:CreateConnection(Page_Tab_Button.MouseEnter, function(Input)
-					Page_Tab_Image.ImageColor3 = Color3.fromRGB(172, 172, 172)
-				end)
-				--
-				utility:CreateConnection(Page_Tab_Button.MouseLeave, function(Input)
-					Page_Tab_Image.ImageColor3 = Page.Open and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(90, 90, 90)
-				end)
-			end
-		end
-		--
-		if #Page.Window.Pages == 0 then Page:Set(true) end
-		Page.Window.Pages[#Page.Window.Pages + 1] = Page
-		return setmetatable(Page, pages)
-	end
+function library:CreatePage(Properties)
+    Properties = Properties or {}
+    --
+    local Page = {
+        Image = (Properties.image or Properties.Image or Properties.icon or Properties.Icon),
+        Size = (Properties.size or Properties.Size or UDim2.new(0, 50, 0, 50)),
+        Open = false,
+        Window = self
+    }
+    --
+    do
+        local Page_Tab = utility:RenderObject("Frame", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page.Window["TabsHolder"],
+            Size = UDim2.new(1, 0, 0, 72)
+        })
+        -- //
+        local Page_Tab_Border = utility:RenderObject("Frame", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 0,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Tab,
+            Size = UDim2.new(1, 0, 1, 0),
+            Visible = false,
+            ZIndex = 2,
+            RenderTime = 0.15
+        })
+        --
+        local Page_Tab_Image = utility:RenderObject("ImageLabel", {
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Tab,
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            Size = Page.Size,
+            ZIndex = 2,
+            Image = Page.Image,
+            ImageColor3 = Color3.fromRGB(100, 100, 100)
+        })
+        --
+        local Page_Tab_Button = utility:RenderObject("TextButton", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Tab,
+            Size = UDim2.new(1, 0, 1, 0),
+            Text = ""
+        })
+        -- //
+        local Tab_Border_Inner = utility:RenderObject("Frame", {
+            BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+            BackgroundTransparency = 0,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Tab_Border,
+            Position = UDim2.new(0, 0, 0, 1),
+            Size = UDim2.new(1, 1, 1, -2),
+            ZIndex = 2,
+            RenderTime = 0.15
+        })
+        -- //
+        local Border_Inner_Inner = utility:RenderObject("Frame", {
+            BackgroundColor3 = Color3.fromRGB(20, 20, 20),
+            BackgroundTransparency = 0,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Tab_Border_Inner,
+            Position = UDim2.new(0, 0, 0, 1),
+            Size = UDim2.new(1, 0, 1, -2),
+            ZIndex = 2,
+            RenderTime = 0.15
+        })
+        --
+        local Inner_Inner_Pattern = utility:RenderObject("ImageLabel", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Border_Inner_Inner,
+            Position = UDim2.new(0, 0, 0, 0),
+            Size = UDim2.new(1, 0, 1, 0),
+            Image = "rbxassetid://8509210785",
+            ImageColor3 = Color3.fromRGB(12, 12, 12),
+            ScaleType = "Tile",
+            TileSize = UDim2.new(0, 8, 0, 8),
+            ZIndex = 2
+        })
+        -- //
+        local Page_Page = utility:RenderObject("Frame", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page.Window["PagesHolder"],
+            Position = UDim2.new(0, 20, 0, 20),
+            Size = UDim2.new(1, -40, 1, -40),
+            Visible = false
+        })
+        
+        -- ========== 🔥 CONTENEDOR CON SCROLL UNIFICADO ==========
+        local Page_Scroll_Container = utility:RenderObject("Frame", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Page,
+            Position = UDim2.new(0, 0, 0, 0),
+            Size = UDim2.new(1, 0, 1, 0)
+        })
+        
+        -- ========== 🎯 UN SOLO SCROLLING FRAME PARA TODA LA PÁGINA ==========
+        local Page_Unified_Scroll = utility:RenderObject("ScrollingFrame", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Scroll_Container,
+            Position = UDim2.new(0, 0, 0, 0),
+            Size = UDim2.new(1, 0, 1, 0),
+            ZIndex = 2,
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            ScrollBarThickness = 6, -- ✅ Un poco más grueso para mejor visibilidad
+            ScrollBarImageColor3 = Color3.fromRGB(80, 80, 85), -- ✅ Color más visible
+            ScrollBarImageTransparency = 0,
+            BottomImage = "rbxassetid://7783554086",
+            MidImage = "rbxassetid://7783554086",
+            TopImage = "rbxassetid://7783554086",
+            VerticalScrollBarInset = "ScrollBar", -- ✅ Scrollbar visible en el borde derecho
+            ScrollingEnabled = true,
+            Active = true,
+            ScrollingDirection = Enum.ScrollingDirection.Y,
+            ElasticBehavior = Enum.ElasticBehavior.Never -- ✅ Sin rebote elástico
+        })
+        
+        -- ========== 📦 CONTENEDOR DE COLUMNAS (NO SCROLLING) ==========
+        local Columns_Container = utility:RenderObject("Frame", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Unified_Scroll,
+            Position = UDim2.new(0, 0, 0, 0),
+            Size = UDim2.new(1, 0, 1, 0),
+            AutomaticSize = Enum.AutomaticSize.Y
+        })
+        
+        -- ========== COLUMNA IZQUIERDA (FRAME NORMAL, NO SCROLLING) ==========
+        local Page_Page_Left = utility:RenderObject("Frame", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Columns_Container,
+            Position = UDim2.new(0, 0, 0, 0),
+            Size = UDim2.new(0.5, -10, 1, 0),
+            AutomaticSize = Enum.AutomaticSize.Y
+        })
+        
+        -- ========== COLUMNA DERECHA (FRAME NORMAL, NO SCROLLING) ==========
+        local Page_Page_Right = utility:RenderObject("Frame", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Columns_Container,
+            Position = UDim2.new(0.5, 10, 0, 0),
+            Size = UDim2.new(0.5, -10, 1, 0),
+            AutomaticSize = Enum.AutomaticSize.Y
+        })
+        
+        -- ========== 🎨 GRADIENTES Y FLECHAS UNIFICADOS ==========
+        local Unified_Gradient1 = utility:RenderObject("ImageLabel", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Scroll_Container,
+            Position = UDim2.new(0, 0, 0, 0),
+            Rotation = 180,
+            Size = UDim2.new(1, -10, 0, 25), -- ✅ Más ancho (excluye el scrollbar)
+            Visible = false,
+            ZIndex = 5,
+            Image = "rbxassetid://7783533907",
+            ImageColor3 = Color3.fromRGB(20, 20, 20)
+        })
+        
+        local Unified_Gradient2 = utility:RenderObject("ImageLabel", {
+            AnchorPoint = Vector2.new(0, 1),
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Scroll_Container,
+            Position = UDim2.new(0, 0, 1, 0),
+            Size = UDim2.new(1, -10, 0, 25), -- ✅ Más ancho (excluye el scrollbar)
+            Visible = false,
+            ZIndex = 5,
+            Image = "rbxassetid://7783533907",
+            ImageColor3 = Color3.fromRGB(20, 20, 20)
+        })
+        
+        local Unified_ArrowUp = utility:RenderObject("TextButton", {
+            BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Scroll_Container,
+            Position = UDim2.new(1, -25, 0, 2), -- ✅ Posicionado justo sobre el scrollbar
+            Size = UDim2.new(0, 20, 0, 18),
+            Text = "",
+            Visible = false,
+            ZIndex = 6
+        })
+        
+        local Unified_ArrowUp_Image = utility:RenderObject("ImageLabel", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Unified_ArrowUp,
+            Position = UDim2.new(0, 6, 0, 6),
+            Size = UDim2.new(0, 8, 0, 7),
+            ZIndex = 6,
+            Image = "rbxassetid://8548757311",
+            ImageColor3 = Color3.fromRGB(220, 220, 220)
+        })
+        
+        local Unified_ArrowDown = utility:RenderObject("TextButton", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Page_Scroll_Container,
+            Position = UDim2.new(1, -25, 1, -20), -- ✅ Posicionado justo debajo del scrollbar
+            Size = UDim2.new(0, 20, 0, 18),
+            Text = "",
+            Visible = false,
+            ZIndex = 6
+        })
+        
+        local Unified_ArrowDown_Image = utility:RenderObject("ImageLabel", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = Unified_ArrowDown,
+            Position = UDim2.new(0, 6, 0, 6),
+            Size = UDim2.new(0, 8, 0, 7),
+            ZIndex = 6,
+            Image = "rbxassetid://8548723563",
+            ImageColor3 = Color3.fromRGB(220, 220, 220)
+        })
+        
+        -- ========== UI LAYOUTS ==========
+        local Page_Left_List = utility:RenderObject("UIListLayout", {
+            Padding = UDim.new(0, 18),
+            Parent = Page_Page_Left,
+            FillDirection = "Vertical",
+            HorizontalAlignment = "Left",
+            VerticalAlignment = "Top"
+        })
+        
+        local Page_Left_Padding = utility:RenderObject("UIPadding", {
+            Parent = Page_Page_Left,
+            PaddingTop = UDim.new(0, 10),
+            PaddingBottom = UDim.new(0, 10),
+            PaddingLeft = UDim.new(0, 0),
+            PaddingRight = UDim.new(0, 8)
+        })
+        
+        local Page_Right_List = utility:RenderObject("UIListLayout", {
+            Padding = UDim.new(0, 18),
+            Parent = Page_Page_Right,
+            FillDirection = "Vertical",
+            HorizontalAlignment = "Left",
+            VerticalAlignment = "Top"
+        })
+        
+        local Page_Right_Padding = utility:RenderObject("UIPadding", {
+            Parent = Page_Page_Right,
+            PaddingTop = UDim.new(0, 10),
+            PaddingBottom = UDim.new(0, 10),
+            PaddingLeft = UDim.new(0, 0),
+            PaddingRight = UDim.new(0, 8)
+        })
+        
+        --
+        do -- // Index Setting
+            Page["Page"] = Page_Page
+            Page["Left"] = Page_Page_Left
+            Page["Right"] = Page_Page_Right
+            Page["UnifiedScroll"] = Page_Unified_Scroll -- ✅ Referencia al scroll unificado
+        end
+        --
+        do -- // Functions
+            function Page:Set(state)
+                Page.Open = state
+                --
+                Page_Page.Visible = Page.Open
+                Page_Tab_Border.Visible = Page.Open
+                Page_Tab_Image.ImageColor3 = Page.Open and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(90, 90, 90)
+                --
+                if Page.Open then
+                    Page.Window:SetPage(Page)
+                end
+            end
+        end
+        --
+        do -- // Connections
+            utility:CreateConnection(Page_Tab_Button.MouseButton1Click, function(Input)
+                if not Page.Open then
+                    Page:Set(true)
+                end
+            end)
+            --
+            utility:CreateConnection(Page_Tab_Button.MouseEnter, function(Input)
+                Page_Tab_Image.ImageColor3 = Color3.fromRGB(172, 172, 172)
+            end)
+            --
+            utility:CreateConnection(Page_Tab_Button.MouseLeave, function(Input)
+                Page_Tab_Image.ImageColor3 = Page.Open and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(90, 90, 90)
+            end)
+            
+            -- ========== 🎯 CONEXIONES DEL SCROLL UNIFICADO ==========
+            utility:CreateConnection(Page_Unified_Scroll:GetPropertyChangedSignal("AbsoluteCanvasSize"), function()
+                local needsScroll = Page_Unified_Scroll.AbsoluteCanvasSize.Y > Page_Unified_Scroll.AbsoluteWindowSize.Y
+                
+                Unified_Gradient1.Visible = needsScroll
+                Unified_Gradient2.Visible = needsScroll
+                
+                if needsScroll then
+                    Unified_ArrowUp.Visible = (Page_Unified_Scroll.CanvasPosition.Y > 5)
+                    Unified_ArrowDown.Visible = (Page_Unified_Scroll.CanvasPosition.Y + 5 < (Page_Unified_Scroll.AbsoluteCanvasSize.Y - Page_Unified_Scroll.AbsoluteSize.Y))
+                else
+                    Unified_ArrowUp.Visible = false
+                    Unified_ArrowDown.Visible = false
+                end
+            end)
+            
+            utility:CreateConnection(Page_Unified_Scroll:GetPropertyChangedSignal("CanvasPosition"), function()
+                if Page_Unified_Scroll.AbsoluteCanvasSize.Y > Page_Unified_Scroll.AbsoluteWindowSize.Y then
+                    Unified_ArrowUp.Visible = (Page_Unified_Scroll.CanvasPosition.Y > 1)
+                    Unified_ArrowDown.Visible = (Page_Unified_Scroll.CanvasPosition.Y + 1 < (Page_Unified_Scroll.AbsoluteCanvasSize.Y - Page_Unified_Scroll.AbsoluteSize.Y))
+                end
+            end)
+            
+            -- ✅ Scroll suave con las flechas (30 pixels por click)
+            utility:CreateConnection(Unified_ArrowUp.MouseButton1Click, function()
+                Page_Unified_Scroll.CanvasPosition = Vector2.new(0, math.clamp(Page_Unified_Scroll.CanvasPosition.Y - 30, 0, Page_Unified_Scroll.AbsoluteCanvasSize.Y - Page_Unified_Scroll.AbsoluteSize.Y))
+            end)
+            
+            utility:CreateConnection(Unified_ArrowDown.MouseButton1Click, function()
+                Page_Unified_Scroll.CanvasPosition = Vector2.new(0, math.clamp(Page_Unified_Scroll.CanvasPosition.Y + 30, 0, Page_Unified_Scroll.AbsoluteCanvasSize.Y - Page_Unified_Scroll.AbsoluteSize.Y))
+            end)
+            
+            -- ✅ Scroll con la rueda del mouse (cuando está sobre la página)
+            utility:CreateConnection(Page_Unified_Scroll.InputChanged, function(input)
+                if input.UserInputType == Enum.UserInputType.MouseWheel then
+                    local scrollDelta = -input.Position.Z * 40 -- 40 pixels por "tick" de la rueda
+                    Page_Unified_Scroll.CanvasPosition = Vector2.new(
+                        0, 
+                        math.clamp(
+                            Page_Unified_Scroll.CanvasPosition.Y + scrollDelta, 
+                            0, 
+                            Page_Unified_Scroll.AbsoluteCanvasSize.Y - Page_Unified_Scroll.AbsoluteSize.Y
+                        )
+                    )
+                end
+            end)
+        end
+    end
+    --
+    if #Page.Window.Pages == 0 then Page:Set(true) end
+    Page.Window.Pages[#Page.Window.Pages + 1] = Page
+    return setmetatable(Page, pages)
+end
 	--
 -- ============================================================================
 -- SISTEMA DE SUBTABS - AÑADIR DESPUÉS DE CreateSection
@@ -5633,6 +5600,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
+
 
 
 
