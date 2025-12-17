@@ -835,7 +835,7 @@ end
 				Size = UDim2.new(0.5, -10, 1, 0)
 			})
 			--
-			local Page_Page_Right = utility:RenderObject("Frame", {
+			local Page_Page_Right_Container = utility:RenderObject("Frame", {
 				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 				BackgroundTransparency = 1,
 				BorderColor3 = Color3.fromRGB(0, 0, 0),
@@ -844,7 +844,225 @@ end
 				Position = UDim2.new(0.5, 10, 0, 0),
 				Size = UDim2.new(0.5, -10, 1, 0)
 			})
+			
+			local Page_Page_Right = utility:RenderObject("ScrollingFrame", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page_Right_Container,
+				Position = UDim2.new(0, 0, 0, 0),
+				Size = UDim2.new(1, 0, 1, 0),
+				ZIndex = 2,
+				AutomaticCanvasSize = Enum.AutomaticSize.Y,
+				CanvasSize = UDim2.new(0, 0, 0, 0),
+				ScrollBarThickness = 5,
+				ScrollBarImageColor3 = Color3.fromRGB(65, 65, 65),
+				ScrollBarImageTransparency = 0,
+				BottomImage = "rbxassetid://7783554086",
+				MidImage = "rbxassetid://7783554086",
+				TopImage = "rbxassetid://7783554086",
+				VerticalScrollBarInset = "ScrollBar"
+			})
+			
+			-- Gradientes y flechas para Right
+			local Right_Gradient1 = utility:RenderObject("ImageLabel", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page_Right_Container,
+				Position = UDim2.new(0, 0, 0, 0),
+				Rotation = 180,
+				Size = UDim2.new(1, 0, 0, 20),
+				Visible = false,
+				ZIndex = 4,
+				Image = "rbxassetid://7783533907",
+				ImageColor3 = Color3.fromRGB(20, 20, 20)
+			})
+			
+			local Right_Gradient2 = utility:RenderObject("ImageLabel", {
+				AnchorPoint = Vector2.new(0, 1),
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page_Right_Container,
+				Position = UDim2.new(0, 0, 1, 0),
+				Size = UDim2.new(1, 0, 0, 20),
+				Visible = false,
+				ZIndex = 4,
+				Image = "rbxassetid://7783533907",
+				ImageColor3 = Color3.fromRGB(20, 20, 20)
+			})
+			
+			local Right_ArrowUp = utility:RenderObject("TextButton", {
+				BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page_Right_Container,
+				Position = UDim2.new(1, -21, 0, 0),
+				Size = UDim2.new(0, 15, 0, 14),
+				Text = "",
+				Visible = false,
+				ZIndex = 4
+			})
+			
+			local Right_ArrowUp_Image = utility:RenderObject("ImageLabel", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Right_ArrowUp,
+				Position = UDim2.new(0, 4, 0, 4),
+				Size = UDim2.new(0, 7, 0, 6),
+				ZIndex = 4,
+				Image = "rbxassetid://8548757311",
+				ImageColor3 = Color3.fromRGB(205, 205, 205)
+			})
+			
+			local Right_ArrowDown = utility:RenderObject("TextButton", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page_Right_Container,
+				Position = UDim2.new(1, -21, 1, -14),
+				Size = UDim2.new(0, 15, 0, 14),
+				Text = "",
+				Visible = false,
+				ZIndex = 4
+			})
+			
+			local Right_ArrowDown_Image = utility:RenderObject("ImageLabel", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Right_ArrowDown,
+				Position = UDim2.new(0, 4, 0, 4),
+				Size = UDim2.new(0, 7, 0, 6),
+				ZIndex = 4,
+				Image = "rbxassetid://8548723563",
+				ImageColor3 = Color3.fromRGB(205, 205, 205)
+			})
 			-- //
+			local Page_Page_Left_Container = utility:RenderObject("Frame", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page,
+				Position = UDim2.new(0, 0, 0, 0),
+				Size = UDim2.new(0.5, -10, 1, 0)
+			})
+			
+			local Page_Page_Left = utility:RenderObject("ScrollingFrame", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page_Left_Container,
+				Position = UDim2.new(0, 0, 0, 0),
+				Size = UDim2.new(1, 0, 1, 0),
+				ZIndex = 2,
+				AutomaticCanvasSize = Enum.AutomaticSize.Y,
+				CanvasSize = UDim2.new(0, 0, 0, 0),
+				ScrollBarThickness = 5,
+				ScrollBarImageColor3 = Color3.fromRGB(65, 65, 65),
+				ScrollBarImageTransparency = 0,
+				BottomImage = "rbxassetid://7783554086",
+				MidImage = "rbxassetid://7783554086",
+				TopImage = "rbxassetid://7783554086",
+				VerticalScrollBarInset = "ScrollBar"
+			})
+			
+			-- Gradientes y flechas para Left
+			local Left_Gradient1 = utility:RenderObject("ImageLabel", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page_Left_Container,
+				Position = UDim2.new(0, 0, 0, 0),
+				Rotation = 180,
+				Size = UDim2.new(1, 0, 0, 20),
+				Visible = false,
+				ZIndex = 4,
+				Image = "rbxassetid://7783533907",
+				ImageColor3 = Color3.fromRGB(20, 20, 20)
+			})
+			
+			local Left_Gradient2 = utility:RenderObject("ImageLabel", {
+				AnchorPoint = Vector2.new(0, 1),
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page_Left_Container,
+				Position = UDim2.new(0, 0, 1, 0),
+				Size = UDim2.new(1, 0, 0, 20),
+				Visible = false,
+				ZIndex = 4,
+				Image = "rbxassetid://7783533907",
+				ImageColor3 = Color3.fromRGB(20, 20, 20)
+			})
+			
+			local Left_ArrowUp = utility:RenderObject("TextButton", {
+				BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page_Left_Container,
+				Position = UDim2.new(1, -21, 0, 0),
+				Size = UDim2.new(0, 15, 0, 14),
+				Text = "",
+				Visible = false,
+				ZIndex = 4
+			})
+			
+			local Left_ArrowUp_Image = utility:RenderObject("ImageLabel", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Left_ArrowUp,
+				Position = UDim2.new(0, 4, 0, 4),
+				Size = UDim2.new(0, 7, 0, 6),
+				ZIndex = 4,
+				Image = "rbxassetid://8548757311",
+				ImageColor3 = Color3.fromRGB(205, 205, 205)
+			})
+			
+			local Left_ArrowDown = utility:RenderObject("TextButton", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Page_Page_Left_Container,
+				Position = UDim2.new(1, -21, 1, -14),
+				Size = UDim2.new(0, 15, 0, 14),
+				Text = "",
+				Visible = false,
+				ZIndex = 4
+			})
+			
+			local Left_ArrowDown_Image = utility:RenderObject("ImageLabel", {
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderColor3 = Color3.fromRGB(0, 0, 0),
+				BorderSizePixel = 0,
+				Parent = Left_ArrowDown,
+				Position = UDim2.new(0, 4, 0, 4),
+				Size = UDim2.new(0, 7, 0, 6),
+				ZIndex = 4,
+				Image = "rbxassetid://8548723563",
+				ImageColor3 = Color3.fromRGB(205, 205, 205)
+			})
+			
+			--
+			-- ========== UI LAYOUTS ==========
 			local Page_Left_List = utility:RenderObject("UIListLayout", {
 				Padding = UDim.new(0, 18),
 				Parent = Page_Page_Left,
@@ -852,13 +1070,29 @@ end
 				HorizontalAlignment = "Left",
 				VerticalAlignment = "Top"
 			})
-			--
+			
+			local Page_Left_Padding = utility:RenderObject("UIPadding", {
+				Parent = Page_Page_Left,
+				PaddingTop = UDim.new(0, 10),
+				PaddingBottom = UDim.new(0, 10),
+				PaddingLeft = UDim.new(0, 0),
+				PaddingRight = UDim.new(0, 8)
+			})
+			
 			local Page_Right_List = utility:RenderObject("UIListLayout", {
 				Padding = UDim.new(0, 18),
 				Parent = Page_Page_Right,
 				FillDirection = "Vertical",
 				HorizontalAlignment = "Left",
 				VerticalAlignment = "Top"
+			})
+			
+			local Page_Right_Padding = utility:RenderObject("UIPadding", {
+				Parent = Page_Page_Right,
+				PaddingTop = UDim.new(0, 10),
+				PaddingBottom = UDim.new(0, 10),
+				PaddingLeft = UDim.new(0, 0),
+				PaddingRight = UDim.new(0, 8)
 			})
 			--
 			do -- // Index Setting
@@ -5349,4 +5583,3 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
-
