@@ -1512,6 +1512,9 @@ end
 -- ============================================================================
 -- FUNCIÓN CORREGIDA: CreateSubtabs con SCROLL SIN CONFLICTOS
 -- ============================================================================
+-- ============================================================================
+-- FUNCIÓN CORREGIDA: CreateSubtabs con SCROLL SIN CONFLICTOS
+-- ============================================================================
 function sections:CreateSubtabs(Properties)
     Properties = Properties or {}
     
@@ -1579,29 +1582,23 @@ function sections:CreateSubtabs(Properties)
             RenderTime = 0.15
         })
         
-        -- ========== 🔥 FIX: DESACTIVAR AMBOS SCROLLS DE LA PÁGINA ==========
+        -- ========== 🔥 FIX: DESACTIVAR EL SCROLL UNIFICADO DE LA PÁGINA ==========
         local mouseOverSubtab = false
         
         SubtabScrollFrame.MouseEnter:Connect(function()
             mouseOverSubtab = true
-            -- 🎯 Deshabilitar AMBOS scrolls de la página (Left y Right)
-            if pageLeftScroll and pageLeftScroll:IsA("ScrollingFrame") then
-                pageLeftScroll.ScrollingEnabled = false
-            end
-            if pageRightScroll and pageRightScroll:IsA("ScrollingFrame") then
-                pageRightScroll.ScrollingEnabled = false
+            -- 🎯 Deshabilitar el scroll unificado de la página
+            if pageUnifiedScroll and pageUnifiedScroll:IsA("ScrollingFrame") then
+                pageUnifiedScroll.ScrollingEnabled = false
             end
         end)
         
         SubtabScrollFrame.MouseLeave:Connect(function()
             mouseOverSubtab = false
-            -- Rehabilitar AMBOS scrolls de la página con pequeño delay
+            -- Rehabilitar el scroll unificado con pequeño delay
             task.wait(0.05)
-            if pageLeftScroll and pageLeftScroll:IsA("ScrollingFrame") then
-                pageLeftScroll.ScrollingEnabled = true
-            end
-            if pageRightScroll and pageRightScroll:IsA("ScrollingFrame") then
-                pageRightScroll.ScrollingEnabled = true
+            if pageUnifiedScroll and pageUnifiedScroll:IsA("ScrollingFrame") then
+                pageUnifiedScroll.ScrollingEnabled = true
             end
         end)
         
@@ -1609,13 +1606,10 @@ function sections:CreateSubtabs(Properties)
         SubtabScrollFrame:GetPropertyChangedSignal("AbsoluteCanvasSize"):Connect(function()
             local needsScroll = SubtabScrollFrame.AbsoluteCanvasSize.Y > SubtabScrollFrame.AbsoluteWindowSize.Y
             
-            -- Si el subtab NO necesita scroll, no bloquear los scrolls de la página
+            -- Si el subtab NO necesita scroll, no bloquear el scroll de la página
             if not needsScroll and mouseOverSubtab then
-                if pageLeftScroll and pageLeftScroll:IsA("ScrollingFrame") then
-                    pageLeftScroll.ScrollingEnabled = true
-                end
-                if pageRightScroll and pageRightScroll:IsA("ScrollingFrame") then
-                    pageRightScroll.ScrollingEnabled = true
+                if pageUnifiedScroll and pageUnifiedScroll:IsA("ScrollingFrame") then
+                    pageUnifiedScroll.ScrollingEnabled = true
                 end
             end
         end)
@@ -5639,6 +5633,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
+
 
 
 
