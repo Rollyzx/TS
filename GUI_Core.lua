@@ -5240,4 +5240,13 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
+return library  -- ✅ Retornar la tabla
 end)
+
+-- ✅ Retornar el resultado del pcall
+if Passed then
+	return Statement
+else
+	warn("Error loading library:", Statement)
+	return nil
+end
