@@ -1,4 +1,3 @@
-local Passed, Statement = pcall(function()
 	-- [[ // Libraries // ]]
 	local library = {
 		Renders = {},
@@ -89,6 +88,9 @@ local Passed, Statement = pcall(function()
 	local tws = game:GetService("TweenService")
 	local uis = game:GetService("UserInputService")
 	local cre = game:GetService("CoreGui")
+    local RunService = game:GetService("RunService")  -- ✅ AGREGAR ESTA LÍNEA
+    local Players = game:GetService("Players")         -- ✅ AGREGAR ESTA LÍNEA
+    local Workspace = game:GetService("Workspace")     -- ✅ AGREGAR ESTA LÍNEA
 	-- [[ // Functions // ]]
 	function utility:RenderObject(RenderType, RenderProperties, RenderHidden)
 		local Render = Instance.new(RenderType)
@@ -5241,12 +5243,3 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
-end)
-
--- ✅ Retornar el resultado del pcall
-if Passed then
-	return Statement
-else
-	warn("Error loading library:", Statement)
-	return nil
-end
