@@ -1269,6 +1269,9 @@ end
 -- ============================================================================
 -- NUEVA FUNCIÓN: CreateSubtabs (CORREGIDA)
 -- ============================================================================
+-- ============================================================================
+-- FUNCIÓN CORREGIDA: CreateSubtabs con SCROLL COMPLETO
+-- ============================================================================
 function sections:CreateSubtabs(Properties)
     Properties = Properties or {}
     
@@ -1291,8 +1294,8 @@ function sections:CreateSubtabs(Properties)
     self.SubtabsHolder.ClipsDescendants = true
     
     for i, tabName in ipairs(Subtabs) do
-        -- ✅ CORRECCIÓN 1: Contenedor usando utility:RenderObject
-        local SubtabContainer = utility:RenderObject("Frame", {
+        -- ========== CONTENEDOR PRINCIPAL (CON EXTRA PARA FLECHAS) ==========
+        local SubtabMainContainer = utility:RenderObject("Frame", {
             BackgroundColor3 = Color3.fromRGB(0, 0, 0),
             BackgroundTransparency = 1,
             BorderColor3 = Color3.fromRGB(0, 0, 0),
@@ -1302,24 +1305,182 @@ function sections:CreateSubtabs(Properties)
             Size = UDim2.new(1, 0, 1, 0),
             Visible = (i == 1),
             ZIndex = 4,
-            RenderTime = 0.15  -- ⚠️ IMPORTANTE: Tiempo de fade
+            RenderTime = 0.15
         })
         
+        -- ========== SCROLLING FRAME (CONTENEDOR REAL DEL CONTENIDO) ==========
+        local SubtabScrollFrame = utility:RenderObject("ScrollingFrame", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = SubtabMainContainer,
+            Position = UDim2.new(0, 0, 0, 0),
+            Size = UDim2.new(1, 0, 1, 0),
+            ZIndex = 4,
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            BottomImage = "rbxassetid://7783554086",
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            MidImage = "rbxassetid://7783554086",
+            ScrollBarImageColor3 = Color3.fromRGB(65, 65, 65),
+            ScrollBarImageTransparency = 0,
+            ScrollBarThickness = 5,
+            TopImage = "rbxassetid://7783554086",
+            VerticalScrollBarInset = "None",
+            RenderTime = 0.15
+        })
+        
+        -- ========== UI LIST LAYOUT ==========
         local SubtabList = utility:RenderObject("UIListLayout", {
             Padding = UDim.new(0, 0),
-            Parent = SubtabContainer,
+            Parent = SubtabScrollFrame,
             FillDirection = "Vertical",
             HorizontalAlignment = "Center",
             VerticalAlignment = "Top"
         })
         
         local SubtabPadding = utility:RenderObject("UIPadding", {
-            Parent = SubtabContainer,
-            PaddingTop = UDim.new(0, 0),
-            PaddingBottom = UDim.new(0, 0)
+            Parent = SubtabScrollFrame,
+            PaddingTop = UDim.new(0, 15),
+            PaddingBottom = UDim.new(0, 15)
         })
         
-        -- ✅ CORRECCIÓN 2: Botón usando utility:RenderObject
+        -- ========== GRADIENTES SUPERIOR E INFERIOR ==========
+        local Gradient1 = utility:RenderObject("ImageLabel", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = SubtabMainContainer,
+            Position = UDim2.new(0, 1, 0, 1),
+            Rotation = 180,
+            Size = UDim2.new(1, -2, 0, 20),
+            Visible = false,
+            ZIndex = 5,
+            Image = "rbxassetid://7783533907",
+            ImageColor3 = Color3.fromRGB(23, 23, 23),
+            RenderTime = 0.15
+        })
+        
+        local Gradient2 = utility:RenderObject("ImageLabel", {
+            AnchorPoint = Vector2.new(0, 1),
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = SubtabMainContainer,
+            Position = UDim2.new(0, 0, 1, 0),
+            Size = UDim2.new(1, -2, 0, 20),
+            Visible = false,
+            ZIndex = 5,
+            Image = "rbxassetid://7783533907",
+            ImageColor3 = Color3.fromRGB(23, 23, 23),
+            RenderTime = 0.15
+        })
+        
+        -- ========== FLECHA ARRIBA ==========
+        local ArrowUp = utility:RenderObject("TextButton", {
+            BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = SubtabMainContainer,
+            Position = UDim2.new(1, -21, 0, 0),
+            Size = UDim2.new(0, 7 + 8, 0, 6 + 8),
+            Text = "",
+            Visible = false,
+            ZIndex = 5,
+            RenderTime = 0.15
+        })
+        
+        local ArrowUpImage = utility:RenderObject("ImageLabel", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = ArrowUp,
+            Position = UDim2.new(0, 4, 0, 4),
+            Size = UDim2.new(0, 7, 0, 6),
+            Visible = true,
+            ZIndex = 5,
+            Image = "rbxassetid://8548757311",
+            ImageColor3 = Color3.fromRGB(205, 205, 205),
+            RenderTime = 0.15
+        })
+        
+        -- ========== FLECHA ABAJO ==========
+        local ArrowDown = utility:RenderObject("TextButton", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = SubtabMainContainer,
+            Position = UDim2.new(1, -21, 1, -(6 + 8)),
+            Size = UDim2.new(0, 7 + 8, 0, 6 + 8),
+            Text = "",
+            Visible = false,
+            ZIndex = 5,
+            RenderTime = 0.15
+        })
+        
+        local ArrowDownImage = utility:RenderObject("ImageLabel", {
+            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+            BackgroundTransparency = 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = ArrowDown,
+            Position = UDim2.new(0, 4, 0, 4),
+            Size = UDim2.new(0, 7, 0, 6),
+            Visible = true,
+            ZIndex = 5,
+            Image = "rbxassetid://8548723563",
+            ImageColor3 = Color3.fromRGB(205, 205, 205),
+            RenderTime = 0.15
+        })
+        
+        -- ========== BARRA LATERAL ==========
+        local ScrollBar = utility:RenderObject("Frame", {
+            AnchorPoint = Vector2.new(1, 0),
+            BackgroundColor3 = Color3.fromRGB(45, 45, 45),
+            BackgroundTransparency = 0,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = SubtabMainContainer,
+            Position = UDim2.new(1, 0, 0, 0),
+            Size = UDim2.new(0, 6, 1, 0),
+            Visible = false,
+            ZIndex = 5,
+            RenderTime = 0.15
+        })
+        
+        -- ========== CONEXIONES DE SCROLL ==========
+        utility:CreateConnection(SubtabScrollFrame:GetPropertyChangedSignal("AbsoluteCanvasSize"), function()
+            local needsScroll = SubtabScrollFrame.AbsoluteCanvasSize.Y > SubtabScrollFrame.AbsoluteWindowSize.Y
+            
+            Gradient1.Visible = needsScroll
+            Gradient2.Visible = needsScroll
+            ScrollBar.Visible = needsScroll
+            
+            if needsScroll then
+                ArrowUp.Visible = (SubtabScrollFrame.CanvasPosition.Y > 5)
+                ArrowDown.Visible = (SubtabScrollFrame.CanvasPosition.Y + 5 < (SubtabScrollFrame.AbsoluteCanvasSize.Y - SubtabScrollFrame.AbsoluteSize.Y))
+            end
+        end)
+        
+        utility:CreateConnection(SubtabScrollFrame:GetPropertyChangedSignal("CanvasPosition"), function()
+            ArrowUp.Visible = (SubtabScrollFrame.CanvasPosition.Y > 1)
+            ArrowDown.Visible = (SubtabScrollFrame.CanvasPosition.Y + 1 < (SubtabScrollFrame.AbsoluteCanvasSize.Y - SubtabScrollFrame.AbsoluteSize.Y))
+        end)
+        
+        utility:CreateConnection(ArrowUp.MouseButton1Click, function()
+            SubtabScrollFrame.CanvasPosition = Vector2.new(0, math.clamp(SubtabScrollFrame.CanvasPosition.Y - 10, 0, SubtabScrollFrame.AbsoluteCanvasSize.Y - SubtabScrollFrame.AbsoluteSize.Y))
+        end)
+        
+        utility:CreateConnection(ArrowDown.MouseButton1Click, function()
+            SubtabScrollFrame.CanvasPosition = Vector2.new(0, math.clamp(SubtabScrollFrame.CanvasPosition.Y + 10, 0, SubtabScrollFrame.AbsoluteCanvasSize.Y - SubtabScrollFrame.AbsoluteSize.Y))
+        end)
+        
+        -- ========== BOTÓN DE SUBTAB ==========
         local SubtabButton = utility:RenderObject("TextButton", {
             BackgroundColor3 = (i == 1) and Color3.fromRGB(35, 35, 35) or Color3.fromRGB(25, 25, 25),
             BackgroundTransparency = 0,
@@ -1333,7 +1494,7 @@ function sections:CreateSubtabs(Properties)
             TextColor3 = (i == 1) and self.Window.Accent or Color3.fromRGB(155, 155, 155),
             TextSize = 10,
             ZIndex = 5,
-            RenderTime = 0.15  -- ⚠️ IMPORTANTE: Tiempo de fade
+            RenderTime = 0.15
         })
         
         local ButtonCorner = utility:RenderObject("UICorner", {
@@ -1347,78 +1508,77 @@ function sections:CreateSubtabs(Properties)
             PaddingRight = UDim.new(0, 8)
         })
         
-        -- ✅ CORRECCIÓN 3: Indicador usando utility:RenderObject
-		local ActiveIndicator = utility:RenderObject("Frame", {
-			AnchorPoint = Vector2.new(0.5, 1),
-			BackgroundColor3 = self.Window.Accent,
-			BackgroundTransparency = (i == 1) and 0 or 1,  -- ⚠️ Iniciar correctamente
-			BorderColor3 = Color3.fromRGB(0, 0, 0),
-			BorderSizePixel = 0,
-			Parent = SubtabButton,
-			Position = UDim2.new(0.5, 0, 1, -1),
-			Size = UDim2.new(1, -6, 0, 2),
-			ZIndex = 6,
-			RenderTime = 0.15
-		})
+        -- ========== INDICADOR ACTIVO ==========
+        local ActiveIndicator = utility:RenderObject("Frame", {
+            AnchorPoint = Vector2.new(0.5, 1),
+            BackgroundColor3 = self.Window.Accent,
+            BackgroundTransparency = (i == 1) and 0 or 1,
+            BorderColor3 = Color3.fromRGB(0, 0, 0),
+            BorderSizePixel = 0,
+            Parent = SubtabButton,
+            Position = UDim2.new(0.5, 0, 1, -1),
+            Size = UDim2.new(1, -6, 0, 2),
+            ZIndex = 6,
+            RenderTime = 0.15
+        })
         
         local IndicatorCorner = utility:RenderObject("UICorner", {
             CornerRadius = UDim.new(1, 0),
             Parent = ActiveIndicator
         })
         
-		self.Subtabs[i] = {
-			Name = tabName,
-			Container = SubtabContainer,
-			Button = SubtabButton,
-			Indicator = ActiveIndicator,
-			Active = (i == 1)
-		}
-
-		-- ✅ Inicializar estado visual correcto
-		if i == 1 then
-			-- Primera tab: visible y opaco
-			ActiveIndicator.Visible = true
-			ActiveIndicator.BackgroundTransparency = 0
-			SubtabButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-			SubtabButton.TextColor3 = self.Window.Accent
-		else
-			-- Otras tabs: ocultas completamente
-			ActiveIndicator.Visible = false
-			ActiveIndicator.BackgroundTransparency = 1
-			SubtabButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-			SubtabButton.TextColor3 = Color3.fromRGB(155, 155, 155)
-		end
+        -- ========== GUARDAR REFERENCIAS ==========
+        self.Subtabs[i] = {
+            Name = tabName,
+            Container = SubtabScrollFrame, -- ✅ CAMBIO CRÍTICO: Ahora es el ScrollingFrame
+            MainContainer = SubtabMainContainer,
+            Button = SubtabButton,
+            Indicator = ActiveIndicator,
+            Active = (i == 1)
+        }
         
-        -- Conexión del botón
+        -- ========== INICIALIZAR ESTADO ==========
+        if i == 1 then
+            ActiveIndicator.Visible = true
+            ActiveIndicator.BackgroundTransparency = 0
+            SubtabButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+            SubtabButton.TextColor3 = self.Window.Accent
+        else
+            ActiveIndicator.Visible = false
+            ActiveIndicator.BackgroundTransparency = 1
+            SubtabButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            SubtabButton.TextColor3 = Color3.fromRGB(155, 155, 155)
+        end
+        
+        -- ========== CONEXIÓN DEL BOTÓN ==========
         utility:CreateConnection(SubtabButton.MouseButton1Click, function()
             self:SwitchSubtab(i)
         end)
         
-        -- Efectos hover
-		-- Efectos hover ANIMADOS
-		utility:CreateConnection(SubtabButton.MouseEnter, function()
-			if not self.Subtabs[i].Active then
-				tws:Create(SubtabButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-				}):Play()
-				
-				tws:Create(SubtabButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					TextColor3 = Color3.fromRGB(200, 200, 200)
-				}):Play()
-			end
-		end)
-
-		utility:CreateConnection(SubtabButton.MouseLeave, function()
-			if not self.Subtabs[i].Active then
-				tws:Create(SubtabButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-				}):Play()
-				
-				tws:Create(SubtabButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					TextColor3 = Color3.fromRGB(155, 155, 155)
-				}):Play()
-			end
-		end)
+        -- ========== EFECTOS HOVER ANIMADOS ==========
+        utility:CreateConnection(SubtabButton.MouseEnter, function()
+            if not self.Subtabs[i].Active then
+                tws:Create(SubtabButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+                }):Play()
+                
+                tws:Create(SubtabButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    TextColor3 = Color3.fromRGB(200, 200, 200)
+                }):Play()
+            end
+        end)
+        
+        utility:CreateConnection(SubtabButton.MouseLeave, function()
+            if not self.Subtabs[i].Active then
+                tws:Create(SubtabButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+                }):Play()
+                
+                tws:Create(SubtabButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    TextColor3 = Color3.fromRGB(155, 155, 155)
+                }):Play()
+            end
+        end)
     end
     
     self.CurrentSubtab = 1
@@ -1426,8 +1586,9 @@ function sections:CreateSubtabs(Properties)
     
     return self.Subtabs
 end
+
 -- ============================================================================
--- FUNCIÓN: SwitchSubtab
+-- FUNCIÓN CORREGIDA: SwitchSubtab
 -- ============================================================================
 function sections:SwitchSubtab(index)
     if not self.Subtabs[index] then return end
@@ -1437,8 +1598,8 @@ function sections:SwitchSubtab(index)
     
     -- 🎨 Desactivar todos con animación
     for i, subtab in ipairs(self.Subtabs) do
-        -- Ocultar contenedor inmediatamente (sin tween para evitar lag)
-        subtab.Container.Visible = false
+        -- Ocultar contenedor principal inmediatamente
+        subtab.MainContainer.Visible = false
         subtab.Active = false
         
         -- ✅ Animar botón inactivo
@@ -1450,14 +1611,13 @@ function sections:SwitchSubtab(index)
             TextColor3 = Color3.fromRGB(155, 155, 155)
         }):Play()
         
-        -- ✅ CRÍTICO: Fade out del indicador si no es el seleccionado
+        -- ✅ Fade out del indicador
         if i ~= index and subtab.Indicator.BackgroundTransparency < 1 then
             local fadeTween = tweenService:Create(subtab.Indicator, tweenInfo, {
                 BackgroundTransparency = 1
             })
             fadeTween:Play()
             
-            -- Ocultar completamente después del tween
             fadeTween.Completed:Connect(function()
                 subtab.Indicator.Visible = false
             end)
@@ -1466,7 +1626,7 @@ function sections:SwitchSubtab(index)
     
     -- 🎨 Activar el seleccionado con animación
     local selected = self.Subtabs[index]
-    selected.Container.Visible = true
+    selected.MainContainer.Visible = true
     selected.Active = true
     
     -- Animar botón activo
@@ -1489,76 +1649,22 @@ function sections:SwitchSubtab(index)
     self.CurrentSubtab = index
     
     -- Reset scroll con animación
-    if self.Holder and self.Holder.CanvasPosition then
-        tweenService:Create(self.Holder, tweenInfo, {
+    if selected.Container and selected.Container.CanvasPosition then
+        tweenService:Create(selected.Container, tweenInfo, {
             CanvasPosition = Vector2.new(0, 0)
         }):Play()
     end
 end
 
-
 -- ============================================================================
--- FUNCIÓN: GetCurrentSubtabContainer
+-- FUNCIÓN CORREGIDA: GetCurrentSubtabContainer
 -- ============================================================================
-
 function sections:GetCurrentSubtabContainer()
     if self.HasSubtabs and self.CurrentSubtab then
+        -- ✅ Ahora devuelve el ScrollingFrame correcto
         return self.Subtabs[self.CurrentSubtab].Container
     end
     return self.Holder
-end
-
--- ✅ NUEVA FUNCIÓN: Manejar fade de subtabs
-function sections:FadeSubtabs(state)
-    if not self.HasSubtabs then return end
-    
-    local fadeTime = 0.15
-    local tweenService = game:GetService("TweenService")
-    local tweenInfo = TweenInfo.new(
-        fadeTime, 
-        Enum.EasingStyle.Linear, 
-        state and Enum.EasingDirection.Out or Enum.EasingDirection.In
-    )
-    
-    -- Fade del holder de subtabs
-    if self.SubtabsHolder then
-        tweenService:Create(self.SubtabsHolder, tweenInfo, {
-            BackgroundTransparency = state and 1 or 1
-        }):Play()
-    end
-    
-    -- Fade de cada subtab y sus componentes
-    for i, subtab in ipairs(self.Subtabs) do
-        -- Fade del botón
-        if subtab.Button then
-            tweenService:Create(subtab.Button, tweenInfo, {
-                BackgroundTransparency = state and 0 or 1,
-                TextTransparency = state and 0 or 1
-            }):Play()
-        end
-        
-        -- ✅ CRÍTICO: Fade del indicador SOLO si está activo
-        if subtab.Indicator and subtab.Active then
-            tweenService:Create(subtab.Indicator, tweenInfo, {
-                BackgroundTransparency = state and 0 or 1
-            }):Play()
-            
-            -- Ocultar completamente al cerrar
-            if not state then
-                task.delay(fadeTime, function()
-                    if subtab.Indicator then
-                        subtab.Indicator.Visible = false
-                    end
-                end)
-            else
-                subtab.Indicator.Visible = true
-            end
-        elseif subtab.Indicator and not subtab.Active then
-            -- Los inactivos siempre ocultos
-            subtab.Indicator.BackgroundTransparency = 1
-            subtab.Indicator.Visible = false
-        end
-    end
 end
 -- ============================================================================
 -- MODIFICAR FUNCIONES DE CREACIÓN DE CONTROLES
@@ -5243,3 +5349,4 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
+
