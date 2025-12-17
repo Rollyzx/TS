@@ -1509,6 +1509,9 @@ end
 -- ============================================================================
 -- FUNCIÓN CORREGIDA: CreateSubtabs con SCROLL SIN CONFLICTOS
 -- ============================================================================
+-- ============================================================================
+-- FUNCIÓN CORREGIDA: CreateSubtabs con SCROLL SIN CONFLICTOS
+-- ============================================================================
 function sections:CreateSubtabs(Properties)
     Properties = Properties or {}
     
@@ -1532,6 +1535,10 @@ function sections:CreateSubtabs(Properties)
     
     -- 🔥 REFERENCIA AL SCROLL PADRE (Left o Right)
     local parentScrollFrame = self.Holder.Parent
+    
+    -- 🔥 OBTENER AMBOS SCROLLS DE LA PÁGINA (LEFT Y RIGHT)
+    local pageLeftScroll = self.Page.Left
+    local pageRightScroll = self.Page.Right
     
     for i, tabName in ipairs(Subtabs) do
         -- ========== CONTENEDOR PRINCIPAL ==========
@@ -1572,23 +1579,29 @@ function sections:CreateSubtabs(Properties)
             RenderTime = 0.15
         })
         
-        -- ========== 🔥 FIX: DESACTIVAR SCROLL PADRE CUANDO MOUSE SOBRE SUBTAB ==========
+        -- ========== 🔥 FIX: DESACTIVAR AMBOS SCROLLS DE LA PÁGINA ==========
         local mouseOverSubtab = false
         
         SubtabScrollFrame.MouseEnter:Connect(function()
             mouseOverSubtab = true
-            -- Deshabilitar scroll del padre temporalmente
-            if parentScrollFrame and parentScrollFrame:IsA("ScrollingFrame") then
-                parentScrollFrame.ScrollingEnabled = false
+            -- 🎯 Deshabilitar AMBOS scrolls de la página (Left y Right)
+            if pageLeftScroll and pageLeftScroll:IsA("ScrollingFrame") then
+                pageLeftScroll.ScrollingEnabled = false
+            end
+            if pageRightScroll and pageRightScroll:IsA("ScrollingFrame") then
+                pageRightScroll.ScrollingEnabled = false
             end
         end)
         
         SubtabScrollFrame.MouseLeave:Connect(function()
             mouseOverSubtab = false
-            -- Rehabilitar scroll del padre
-            task.wait(0.05) -- Pequeño delay para evitar activación inmediata
-            if parentScrollFrame and parentScrollFrame:IsA("ScrollingFrame") then
-                parentScrollFrame.ScrollingEnabled = true
+            -- Rehabilitar AMBOS scrolls de la página con pequeño delay
+            task.wait(0.05)
+            if pageLeftScroll and pageLeftScroll:IsA("ScrollingFrame") then
+                pageLeftScroll.ScrollingEnabled = true
+            end
+            if pageRightScroll and pageRightScroll:IsA("ScrollingFrame") then
+                pageRightScroll.ScrollingEnabled = true
             end
         end)
         
@@ -1596,10 +1609,13 @@ function sections:CreateSubtabs(Properties)
         SubtabScrollFrame:GetPropertyChangedSignal("AbsoluteCanvasSize"):Connect(function()
             local needsScroll = SubtabScrollFrame.AbsoluteCanvasSize.Y > SubtabScrollFrame.AbsoluteWindowSize.Y
             
-            -- Si el subtab NO necesita scroll, no bloquear el scroll padre
+            -- Si el subtab NO necesita scroll, no bloquear los scrolls de la página
             if not needsScroll and mouseOverSubtab then
-                if parentScrollFrame and parentScrollFrame:IsA("ScrollingFrame") then
-                    parentScrollFrame.ScrollingEnabled = true
+                if pageLeftScroll and pageLeftScroll:IsA("ScrollingFrame") then
+                    pageLeftScroll.ScrollingEnabled = true
+                end
+                if pageRightScroll and pageRightScroll:IsA("ScrollingFrame") then
+                    pageRightScroll.ScrollingEnabled = true
                 end
             end
         end)
@@ -5623,5 +5639,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
+
 
 
