@@ -3443,23 +3443,23 @@ end
 							ZIndex = 6
 						})
 						-- //
-					-- === Color picker visual + lógica (reemplazar el bloque ValSat_Picker_Color existente) ===
-local ValSat_Picker_Color = utility:RenderObject("Frame", {
-    BackgroundColor3 = Color3.fromHSV(0,1,1),
-    BackgroundTransparency = 0,
-    BorderColor3 = Color3.fromRGB(0, 0, 0),
-    BorderSizePixel = 0,
-    Parent = ValSat_Picker_Outline,
-    Position = UDim2.new(0, 1, 0, 1),
-    Size = UDim2.new(1, -2, 1, -2),
-    ZIndex = 6
-})
-local ValSat_Gradient = utility:RenderObject("UIGradient", {
-    Color = ColorSequence.new(Color3.new(1,1,1), Color3.new(0,0,0)),
-    Rotation = 90,
-    Parent = ValSat_Picker_Color
-})
--- pequeño cursor que muestra la posición actual dentro del cuadro (sat/val)
+					    -- === Color picker visual + lógica (reemplazar el bloque ValSat_Picker_Color existente) ===
+                        local ValSat_Picker_Color = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromHSV(0,1,1),
+                            BackgroundTransparency = 0,
+                            BorderColor3 = Color3.fromRGB(0, 0, 0),
+                            BorderSizePixel = 0,
+                            Parent = ValSat_Picker_Outline,
+                            Position = UDim2.new(0, 1, 0, 1),
+                            Size = UDim2.new(1, -2, 1, -2),
+                            ZIndex = 6
+                        })
+                        local ValSat_Gradient = utility:RenderObject("UIGradient", {
+                            Color = ColorSequence.new(Color3.new(1,1,1), Color3.new(0,0,0)),
+                            Rotation = 90,
+                            Parent = ValSat_Picker_Color
+                        })
+                        -- pequeño cursor que muestra la posición actual dentro del cuadro (sat/val)
 					local VS_Cursor = utility:RenderObject("Frame", {
 						AnchorPoint = Vector2.new(0.5, 0.5),
 						BackgroundColor3 = Color3.fromRGB(255,255,255),
@@ -3491,21 +3491,21 @@ local ValSat_Gradient = utility:RenderObject("UIGradient", {
 					-- helpers
 					local function clamp(v) return math.clamp(v, 0, 1) end
 
-local function updatePreview()
-    -- color seleccionado
-    local selected = Color3.fromHSV(hue, sat, val)
-    -- actualiza el cuadro grande para que muestre el color seleccionado
-    pcall(function() ValSat_Picker_Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1) end)
-    -- actualizar cursores (calculamos posiciones en escala)
-    local yPos = 1 - val -- si val = 1 -> cursor arriba (y=0), si val=0 -> cursor abajo (y=1)
-    pcall(function()
-        VS_Cursor.Position = UDim2.new(sat, 0, yPos, 0)
-        -- Hue cursor: queremos la posición vertical equivalente al hue
-        -- recordemos que 'hue' calculamos como 0..1 (0 bottom, 1 top en nuestro manejo),
-        -- así que la posición vertical real del cursor es (1 - hue)
-        Hue_Cursor.Position = UDim2.new(0.5, 0, 1 - hue, 0)
-    end)
-end
+                    local function updatePreview()
+                        -- color seleccionado
+                        local selected = Color3.fromHSV(hue, sat, val)
+                        -- actualiza el cuadro grande para que muestre el color seleccionado
+                        pcall(function() ValSat_Picker_Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1) end)
+                        -- actualizar cursores (calculamos posiciones en escala)
+                        local yPos = 1 - val -- si val = 1 -> cursor arriba (y=0), si val=0 -> cursor abajo (y=1)
+                        pcall(function()
+                            VS_Cursor.Position = UDim2.new(sat, 0, yPos, 0)
+                            -- Hue cursor: queremos la posición vertical equivalente al hue
+                            -- recordemos que 'hue' calculamos como 0..1 (0 bottom, 1 top en nuestro manejo),
+                            -- así que la posición vertical real del cursor es (1 - hue)
+                            Hue_Cursor.Position = UDim2.new(0.5, 0, 1 - hue, 0)
+                        end)
+                    end
 
 					-- arrastrar / interacción
 					local draggingVS = false
@@ -3567,7 +3567,7 @@ end
 							draggingHue = false
 						end
 					end)
--- === fin picker logic ===
+                        -- === fin picker logic ===
 						--
 						do -- // Functions
 							function Content.Content:Close()
@@ -3636,6 +3636,8 @@ end
 			return Content
 		end
 	end
+end)
+
 
 	-- [[ // ESP FUNCTIONS // ]]
 -- [[ // ESP SYSTEM MEJORADO // ]]
@@ -5054,6 +5056,6 @@ do
 	end
 	
 end
-end)
+
 return library
 --hello
