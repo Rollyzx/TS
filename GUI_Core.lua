@@ -142,113 +142,123 @@
 		return Table3
 	end
 
-	-- Aplica theme a una ventana (ajusta nombres de hijos según tu GUI)
-	local function applyTheme(window, theme)
-		if not window or not theme then return end
-		-- seguridad: permitir pasar nombre de tema
-		local colors = theme
-		if type(theme) == "string" then
-			colors = Config.Themes[theme] or Config.Custom
-		end
+-- 🎨 NUEVA FUNCIÓN: Convertir Color3 a Hex
+local function Color3ToHex(color)
+    return string.format("#%02x%02x%02x", 
+        math.floor(color.R * 255),
+        math.floor(color.G * 255),
+        math.floor(color.B * 255)
+    )
+end
 
-		-- normaliza colores (ej.: fallback si no existe)
-		colors = colors or {}
-		colors.Main   = colors.Main   or Color3.fromRGB(20,20,20)
-		colors.Background = colors.Background or Color3.fromRGB(10,10,10)
-		colors.Accent = colors.Accent or Color3.fromRGB(200,50,50)
-		colors.Text   = colors.Text   or Color3.fromRGB(230,230,230)
-	colors.Border = colors.Border or Color3.fromRGB(30,30,30)
+-- 🎨 NUEVA FUNCIÓN: Convertir Hex a Color3
+local function HexToColor3(hex)
+    hex = hex:gsub("#", "")
+    if #hex ~= 6 then return Color3.fromRGB(255, 255, 255) end
+    
+    local r = tonumber(hex:sub(1,2), 16) or 255
+    local g = tonumber(hex:sub(3,4), 16) or 255
+    local b = tonumber(hex:sub(5,6), 16) or 255
+    
+    return Color3.fromRGB(r, g, b)
+end
 
-	if type(colors.Main) == "table" then colors.Main = colors.Main[1] end
-	if type(colors.Background) == "table" then colors.Background = colors.Background[1] end
-	if type(colors.Accent) == "table" then colors.Accent = colors.Accent[1] end
-	if type(colors.Text) == "table" then colors.Text = colors.Text[1] end
-	if type(colors.Secondary) == "table" then colors.Secondary = colors.Secondary[1] end
-	if type(colors.Border) == "table" then colors.Border = colors.Border[1] end
-
-	-- aplicar transparencia si se usa
-		local bg = colors.Background
-		local main = colors.Main
-		local tr = Config.Transparency or 0
-		bg = Color3.new(bg.R + (1 - bg.R)*tr, bg.G + (1 - bg.G)*tr, bg.B + (1 - bg.B)*tr)
-		main = Color3.new(main.R + (1 - main.R)*tr, main.G + (1 - main.G)*tr, main.B + (1 - main.B)*tr)
-
-		-- aplicar a propiedades de window
-		pcall(function()
-			if type(window) == "table" then
-				window.Accent = colors.Accent or window.Accent
-				window.Text   = colors.Text   or window.Text
-				window.Border = colors.Border or window.Border
-			end
-		end)
-
-		-- ejemplos de elementos que puedes tener: ajusta a tus nombres reales
-		-- Fondo general
-		if window.Background then
-			pcall(function() window.Background.BackgroundColor3 = bg end)
-		end
-
-		-- Panel principal (contenedor)
-		if window.Main then
-			pcall(function() window.Main.BackgroundColor3 = main end)
-		end
-
-		-- Cabecera / título
-		if window.Header then
-			pcall(function()
-				window.Header.BackgroundColor3 = colors.Secondary or main
-				if window.Header.Title and window.Header.Title:IsA("TextLabel") then
-					window.Header.Title.TextColor3 = colors.Text
-				end
-			end)
-		end
-
-		-- Botón de cerrar
-		if window.CloseButton then
-			pcall(function()
-				window.CloseButton.BackgroundColor3 = colors.Secondary
-				if window.CloseButton.TextLabel then
-					window.CloseButton.TextLabel.TextColor3 = colors.Text
-				end
-			end)
-		end
-
-		-- Botones / toggles genéricos
-		if window.Buttons and typeof(window.Buttons) == "table" then
-			for _, btn in ipairs(window.Buttons) do
-				pcall(function()
-					if btn:IsA("GuiButton") or btn:IsA("TextButton") then
-						btn.BackgroundColor3 = colors.Main
-						btn.BorderColor3 = Config.UseBorders and (colors.Border or Color3.new(0,0,0)) or Color3.new(0,0,0)
-						if btn.TextColor3 ~= nil then btn.TextColor3 = colors.Text end
-					end
-				end)
-			end
-		end
-
-		-- Campos de texto, labels y demás
-		if window.Labels and typeof(window.Labels) == "table" then
-			for _, lbl in ipairs(window.Labels) do
-				pcall(function()
-					if lbl:IsA("TextLabel") or lbl:IsA("TextBox") then
-						lbl.TextColor3 = colors.Text
-						if lbl.BackgroundColor3 then lbl.BackgroundColor3 = main end
-					end
-				end)
-			end
-		end
-
-		-- Elementos acento (por ejemplo toggles activos, sliders fill, etc.)
-		if window.Accents and typeof(window.Accents) == "table" then
-			for _, acc in ipairs(window.Accents) do
-				pcall(function()
-					if acc:IsA("Frame") or acc:IsA("ImageLabel") then
-						acc.BackgroundColor3 = colors.Accent
-					end
-				end)
-			end
-		end
-	end
+-- Aplicar theme
+local function applyTheme(window, theme)
+    if not window or not theme then return end
+    
+    local colors = theme
+    if type(theme) == "string" then
+        colors = Config.Themes[theme] or Config.Custom
+    end
+    
+    colors = colors or {}
+    colors.Main   = colors.Main   or Color3.fromRGB(20,20,20)
+    colors.Background = colors.Background or Color3.fromRGB(10,10,10)
+    colors.Accent = colors.Accent or Color3.fromRGB(200,50,50)
+    colors.Text   = colors.Text   or Color3.fromRGB(230,230,230)
+    colors.Border = colors.Border or Color3.fromRGB(30,30,30)
+    
+    if type(colors.Main) == "table" then colors.Main = colors.Main[1] end
+    if type(colors.Background) == "table" then colors.Background = colors.Background[1] end
+    if type(colors.Accent) == "table" then colors.Accent = colors.Accent[1] end
+    if type(colors.Text) == "table" then colors.Text = colors.Text[1] end
+    if type(colors.Secondary) == "table" then colors.Secondary = colors.Secondary[1] end
+    if type(colors.Border) == "table" then colors.Border = colors.Border[1] end
+    
+    local bg = colors.Background
+    local main = colors.Main
+    local tr = Config.Transparency or 0
+    bg = Color3.new(bg.R + (1 - bg.R)*tr, bg.G + (1 - bg.G)*tr, bg.B + (1 - bg.B)*tr)
+    main = Color3.new(main.R + (1 - main.R)*tr, main.G + (1 - main.G)*tr, main.B + (1 - main.B)*tr)
+    
+    pcall(function()
+        if type(window) == "table" then
+            window.Accent = colors.Accent or window.Accent
+            window.Text   = colors.Text   or window.Text
+            window.Border = colors.Border or window.Border
+        end
+    end)
+    
+    if window.Background then
+        pcall(function() window.Background.BackgroundColor3 = bg end)
+    end
+    
+    if window.Main then
+        pcall(function() window.Main.BackgroundColor3 = main end)
+    end
+    
+    if window.Header then
+        pcall(function()
+            window.Header.BackgroundColor3 = colors.Secondary or main
+            if window.Header.Title and window.Header.Title:IsA("TextLabel") then
+                window.Header.Title.TextColor3 = colors.Text
+            end
+        end)
+    end
+    
+    if window.CloseButton then
+        pcall(function()
+            window.CloseButton.BackgroundColor3 = colors.Secondary
+            if window.CloseButton.TextLabel then
+                window.CloseButton.TextLabel.TextColor3 = colors.Text
+            end
+        end)
+    end
+    
+    if window.Buttons and typeof(window.Buttons) == "table" then
+        for _, btn in ipairs(window.Buttons) do
+            pcall(function()
+                if btn:IsA("GuiButton") or btn:IsA("TextButton") then
+                    btn.BackgroundColor3 = colors.Main
+                    btn.BorderColor3 = Config.UseBorders and (colors.Border or Color3.new(0,0,0)) or Color3.new(0,0,0)
+                    if btn.TextColor3 ~= nil then btn.TextColor3 = colors.Text end
+                end
+            end)
+        end
+    end
+    
+    if window.Labels and typeof(window.Labels) == "table" then
+        for _, lbl in ipairs(window.Labels) do
+            pcall(function()
+                if lbl:IsA("TextLabel") or lbl:IsA("TextBox") then
+                    lbl.TextColor3 = colors.Text
+                    if lbl.BackgroundColor3 then lbl.BackgroundColor3 = main end
+                end
+            end)
+        end
+    end
+    
+    if window.Accents and typeof(window.Accents) == "table" then
+        for _, acc in ipairs(window.Accents) do
+            pcall(function()
+                if acc:IsA("Frame") or acc:IsA("ImageLabel") then
+                    acc.BackgroundColor3 = colors.Accent
+                end
+            end)
+        end
+    end
+end
 
 	-- [[ // UI Functions // ]]
 	function library:CreateWindow(Properties)
@@ -1972,6 +1982,10 @@ end
 -- etc.
 	--
 	do -- // Content
+-- ============================================================================
+-- 🎨 COLORPICKER MEJORADO DENTRO DE TOGGLE
+-- ============================================================================
+
 function sections:CreateToggle(Properties)
     Properties = Properties or {}
     
@@ -1983,9 +1997,8 @@ function sections:CreateToggle(Properties)
         Page = self.Page,
         Section = self
     }
-	local parentContainer = self:GetCurrentSubtabContainer()
+    local parentContainer = self:GetCurrentSubtabContainer()
     
-    -- Procesar colorpickers de forma segura
     local colorpickers = Properties.colorpickers or Properties.Colorpickers or {}
     local numColorpickers = type(colorpickers) == "table" and #colorpickers or 0
     
@@ -2089,7 +2102,7 @@ function sections:CreateToggle(Properties)
             ContentRef = Content
         })
         
-        -- ========== COLORPICKERS INTEGRADOS ==========
+        -- ========== 🎨 COLORPICKERS MEJORADOS ==========
         if numColorpickers > 0 then
             for i, cpData in ipairs(colorpickers) do
                 if type(cpData) == "table" then
@@ -2097,7 +2110,7 @@ function sections:CreateToggle(Properties)
                     
                     local cpState = (type(cpData.State) == "userdata" and cpData.State) or Color3.fromRGB(255, 255, 255)
                     local cpCallback = type(cpData.Callback) == "function" and cpData.Callback or function() end
-                    local cpOpen = false -- 🔒 EVITA MÚLTIPLES APERTURAS
+                    local cpOpen = false
                     
                     local CP_Outline = utility:RenderObject("Frame", {
                         BackgroundColor3 = Color3.fromRGB(12, 12, 12),
@@ -2139,8 +2152,9 @@ function sections:CreateToggle(Properties)
                         ZIndex = 5
                     })
                     
+                    -- ========== 🎨 FUNCIÓN PARA ABRIR COLOR PICKER MEJORADO ==========
                     local function OpenColorPicker()
-                        if cpOpen then return end -- 🔒 YA ESTÁ ABIERTO
+                        if cpOpen then return end
                         cpOpen = true
                         
                         Content.Section:CloseContent()
@@ -2148,6 +2162,7 @@ function sections:CreateToggle(Properties)
                         local Connections = {}
                         local InputCheck
                         
+                        -- ========== CONTENEDOR PRINCIPAL ==========
                         local Content_Open_Holder = utility:RenderObject("Frame", {
                             BackgroundColor3 = Color3.fromRGB(0, 0, 0),
                             BackgroundTransparency = 1,
@@ -2155,91 +2170,270 @@ function sections:CreateToggle(Properties)
                             BorderSizePixel = 0,
                             Parent = Content.Section.Extra,
                             Position = UDim2.new(0, CP_Outline.AbsolutePosition.X - Content.Section.Extra.AbsolutePosition.X - 80, 0, CP_Outline.AbsolutePosition.Y - Content.Section.Extra.AbsolutePosition.Y + 10),
-                            Size = UDim2.new(0, 180, 0, 175),
+                            Size = UDim2.new(0, 200, 0, 220),
                             ZIndex = 6
                         })
                         
+                        -- ========== BORDE EXTERIOR ==========
                         local Open_Holder_Outline = utility:RenderObject("Frame", {
-                            BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+                            BackgroundColor3 = Color3.fromRGB(40, 42, 54),
                             BackgroundTransparency = 0,
-                            BorderColor3 = Color3.fromRGB(12, 12, 12),
+                            BorderColor3 = Color3.fromRGB(68, 71, 90),
                             BorderMode = "Inset",
-                            BorderSizePixel = 1,
+                            BorderSizePixel = 2,
                             Parent = Content_Open_Holder,
                             Size = UDim2.new(1, 0, 1, 0),
                             ZIndex = 6
                         })
                         
+                        local Open_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 8),
+                            Parent = Open_Holder_Outline
+                        })
+                        
+                        -- ========== FRAME INTERIOR ==========
                         local Open_Outline_Frame = utility:RenderObject("Frame", {
-                            BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+                            BackgroundColor3 = Color3.fromRGB(30, 32, 42),
                             BackgroundTransparency = 0,
                             BorderColor3 = Color3.fromRGB(0, 0, 0),
                             BorderSizePixel = 0,
                             Parent = Open_Holder_Outline,
-                            Position = UDim2.new(0, 1, 0, 1),
-                            Size = UDim2.new(1, -2, 1, -2),
+                            Position = UDim2.new(0, 4, 0, 4),
+                            Size = UDim2.new(1, -8, 1, -8),
                             ZIndex = 6
                         })
                         
+                        local Inner_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 6),
+                            Parent = Open_Outline_Frame
+                        })
+                        
+                        -- ========== SELECTOR 2D (SAT/VAL) ==========
                         local ValSat_Picker_Outline = utility:RenderObject("Frame", {
-                            BackgroundColor3 = Color3.fromRGB(12, 12, 12),
+                            BackgroundColor3 = Color3.fromRGB(20, 22, 30),
                             BackgroundTransparency = 0,
                             BorderColor3 = Color3.fromRGB(0, 0, 0),
                             BorderSizePixel = 0,
                             Parent = Open_Outline_Frame,
-                            Position = UDim2.new(0, 2, 0, 2),
+                            Position = UDim2.new(0, 8, 0, 8),
                             Size = UDim2.new(0, 152, 0, 152),
                             ZIndex = 6
                         })
                         
+                        local VSat_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 4),
+                            Parent = ValSat_Picker_Outline
+                        })
+                        
+                        -- ========== BARRA DE HUE ==========
                         local Hue_Picker_Outline = utility:RenderObject("Frame", {
-                            BackgroundColor3 = Color3.fromRGB(12, 12, 12),
+                            BackgroundColor3 = Color3.fromRGB(20, 22, 30),
                             BackgroundTransparency = 0,
                             BorderColor3 = Color3.fromRGB(0, 0, 0),
                             BorderSizePixel = 0,
                             Parent = Open_Outline_Frame,
-                            Position = UDim2.new(1, -19, 0, 2),
-                            Size = UDim2.new(0, 17, 0, 152),
+                            Position = UDim2.new(1, -24, 0, 8),
+                            Size = UDim2.new(0, 16, 0, 152),
                             ZIndex = 6
                         })
                         
+                        local Hue_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 4),
+                            Parent = Hue_Picker_Outline
+                        })
+                        
+                        -- ========== CAMPO DE TEXTO HEX ==========
+                        local Hex_Container = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(20, 22, 30),
+                            BackgroundTransparency = 0,
+                            BorderColor3 = Color3.fromRGB(0, 0, 0),
+                            BorderSizePixel = 0,
+                            Parent = Open_Outline_Frame,
+                            Position = UDim2.new(0, 8, 1, -36),
+                            Size = UDim2.new(1, -16, 0, 28),
+                            ZIndex = 6
+                        })
+                        
+                        local Hex_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 4),
+                            Parent = Hex_Container
+                        })
+                        
+                        local Hex_Label = utility:RenderObject("TextLabel", {
+                            BackgroundTransparency = 1,
+                            Parent = Hex_Container,
+                            Position = UDim2.new(0, 8, 0, 0),
+                            Size = UDim2.new(0, 25, 1, 0),
+                            Font = Enum.Font.Code,
+                            Text = "HEX",
+                            TextColor3 = Color3.fromRGB(150, 155, 175),
+                            TextSize = 12,
+                            TextXAlignment = Enum.TextXAlignment.Left,
+                            ZIndex = 7
+                        })
+                        
+                        local Hex_TextBox = utility:RenderObject("TextBox", {
+                            BackgroundTransparency = 1,
+                            Parent = Hex_Container,
+                            Position = UDim2.new(0, 40, 0, 0),
+                            Size = UDim2.new(1, -48, 1, 0),
+                            Font = Enum.Font.Code,
+                            PlaceholderText = "#ffffff",
+                            Text = Color3ToHex(cpState),
+                            TextColor3 = Color3.fromRGB(255, 255, 255),
+                            TextSize = 14,
+                            TextXAlignment = Enum.TextXAlignment.Left,
+                            ClearTextOnFocus = false,
+                            ZIndex = 7
+                        })
+                        
+                        -- ========== GRADIENTE 2D ==========
                         local ValSat_Picker_Color = utility:RenderObject("Frame", {
                             BackgroundColor3 = Color3.fromHSV(0,1,1),
                             BackgroundTransparency = 0,
                             BorderColor3 = Color3.fromRGB(0, 0, 0),
                             BorderSizePixel = 0,
                             Parent = ValSat_Picker_Outline,
-                            Position = UDim2.new(0, 1, 0, 1),
-                            Size = UDim2.new(1, -2, 1, -2),
+                            Position = UDim2.new(0, 2, 0, 2),
+                            Size = UDim2.new(1, -4, 1, -4),
                             ZIndex = 6
                         })
                         
-                        local ValSat_Gradient = utility:RenderObject("UIGradient", {
-                            Color = ColorSequence.new(Color3.new(1,1,1), Color3.new(0,0,0)),
-                            Rotation = 90,
+                        local VSat_Inner_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 3),
                             Parent = ValSat_Picker_Color
                         })
                         
+                        -- Gradiente horizontal (blanco a transparente)
+                        local Sat_Gradient = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                            BackgroundTransparency = 0,
+                            BorderSizePixel = 0,
+                            Parent = ValSat_Picker_Color,
+                            Size = UDim2.new(1, 0, 1, 0),
+                            ZIndex = 6
+                        })
+                        
+                        local Sat_Grad = utility:RenderObject("UIGradient", {
+                            Color = ColorSequence.new(Color3.new(1,1,1), Color3.new(1,1,1)),
+                            Transparency = NumberSequence.new({
+                                NumberSequenceKeypoint.new(0, 0),
+                                NumberSequenceKeypoint.new(1, 1)
+                            }),
+                            Rotation = 0,
+                            Parent = Sat_Gradient
+                        })
+                        
+                        local Sat_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 3),
+                            Parent = Sat_Gradient
+                        })
+                        
+                        -- Gradiente vertical (transparente a negro)
+                        local Val_Gradient = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                            BackgroundTransparency = 0,
+                            BorderSizePixel = 0,
+                            Parent = ValSat_Picker_Color,
+                            Size = UDim2.new(1, 0, 1, 0),
+                            ZIndex = 7
+                        })
+                        
+                        local Val_Grad = utility:RenderObject("UIGradient", {
+                            Color = ColorSequence.new(Color3.new(0,0,0), Color3.new(0,0,0)),
+                            Transparency = NumberSequence.new({
+                                NumberSequenceKeypoint.new(0, 1),
+                                NumberSequenceKeypoint.new(1, 0)
+                            }),
+                            Rotation = 90,
+                            Parent = Val_Gradient
+                        })
+                        
+                        local Val_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 3),
+                            Parent = Val_Gradient
+                        })
+                        
+                        -- ========== CURSOR 2D ==========
                         local VS_Cursor = utility:RenderObject("Frame", {
                             AnchorPoint = Vector2.new(0.5, 0.5),
                             BackgroundColor3 = Color3.fromRGB(255,255,255),
-                            BorderColor3 = Color3.fromRGB(0,0,0),
-                            BorderSizePixel = 1,
-                            Size = UDim2.new(0,10,0,10),
-                            ZIndex = 7,
+                            BackgroundTransparency = 1,
+                            BorderColor3 = Color3.fromRGB(255,255,255),
+                            BorderSizePixel = 3,
+                            Size = UDim2.new(0,14,0,14),
+                            ZIndex = 8,
                             Parent = ValSat_Picker_Color
                         })
                         
+                        local VS_Cursor_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(1, 0),
+                            Parent = VS_Cursor
+                        })
+                        
+                        local VS_Cursor_Inner = utility:RenderObject("Frame", {
+                            AnchorPoint = Vector2.new(0.5, 0.5),
+                            BackgroundColor3 = Color3.fromRGB(0,0,0),
+                            BackgroundTransparency = 0,
+                            BorderSizePixel = 0,
+                            Position = UDim2.new(0.5, 0, 0.5, 0),
+                            Size = UDim2.new(0,4,0,4),
+                            ZIndex = 9,
+                            Parent = VS_Cursor
+                        })
+                        
+                        local VS_Inner_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(1, 0),
+                            Parent = VS_Cursor_Inner
+                        })
+                        
+                        -- ========== GRADIENTE HUE ==========
+                        local Hue_Gradient_Frame = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+                            BackgroundTransparency = 0,
+                            BorderSizePixel = 0,
+                            Parent = Hue_Picker_Outline,
+                            Position = UDim2.new(0, 2, 0, 2),
+                            Size = UDim2.new(1, -4, 1, -4),
+                            ZIndex = 6
+                        })
+                        
+                        local Hue_Gradient_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 3),
+                            Parent = Hue_Gradient_Frame
+                        })
+                        
+                        local Hue_Gradient = utility:RenderObject("UIGradient", {
+                            Color = ColorSequence.new({
+                                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+                                ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
+                                ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
+                                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+                                ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),
+                                ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
+                                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+                            }),
+                            Rotation = 90,
+                            Parent = Hue_Gradient_Frame
+                        })
+                        
+                        -- ========== CURSOR HUE ==========
                         local Hue_Cursor = utility:RenderObject("Frame", {
                             AnchorPoint = Vector2.new(0.5,0.5),
                             BackgroundColor3 = Color3.fromRGB(255,255,255),
                             BorderColor3 = Color3.fromRGB(0,0,0),
-                            BorderSizePixel = 1,
-                            Size = UDim2.new(0,16,0,6),
+                            BorderSizePixel = 2,
+                            Size = UDim2.new(1,4,0,4),
                             ZIndex = 7,
                             Parent = Hue_Picker_Outline
                         })
                         
+                        local Hue_Cursor_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 2),
+                            Parent = Hue_Cursor
+                        })
+                        
+                        -- ========== LÓGICA DEL COLOR PICKER ==========
                         local hue, sat, val = 0, 1, 1
                         if typeof(cpState) == "Color3" then
                             local h,s,v = Color3.toHSV(cpState)
@@ -2249,7 +2443,13 @@ function sections:CreateToggle(Properties)
                         local function clamp(v) return math.clamp(v, 0, 1) end
                         
                         local function updatePreview()
-                            pcall(function() ValSat_Picker_Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1) end)
+                            local selected = Color3.fromHSV(hue, sat, val)
+                            pcall(function()
+                                ValSat_Picker_Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+                                CP_Frame.BackgroundColor3 = selected
+                                Hex_TextBox.Text = Color3ToHex(selected)
+                            end)
+                            
                             local yPos = 1 - val
                             pcall(function()
                                 VS_Cursor.Position = UDim2.new(sat, 0, yPos, 0)
@@ -2269,7 +2469,6 @@ function sections:CreateToggle(Properties)
                             updatePreview()
                             local col = Color3.fromHSV(hue, sat, val)
                             cpState = col
-                            CP_Frame.BackgroundColor3 = col
                             pcall(function() cpCallback(col) end)
                         end
                         
@@ -2280,12 +2479,12 @@ function sections:CreateToggle(Properties)
                             updatePreview()
                             local col = Color3.fromHSV(hue, sat, val)
                             cpState = col
-                            CP_Frame.BackgroundColor3 = col
                             pcall(function() cpCallback(col) end)
                         end
                         
                         updatePreview()
                         
+                        -- ========== EVENTOS ==========
                         table.insert(Connections, utility:CreateConnection(ValSat_Picker_Color.InputBegan, function(input)
                             if input.UserInputType == Enum.UserInputType.MouseButton1 then
                                 draggingVS = true
@@ -2315,6 +2514,21 @@ function sections:CreateToggle(Properties)
                             end
                         end))
                         
+                        -- ========== TEXTBOX HEX ==========
+                        Hex_TextBox.FocusLost:Connect(function(enterPressed)
+                            local hexText = Hex_TextBox.Text
+                            local newColor = HexToColor3(hexText)
+                            
+                            local h, s, v = Color3.toHSV(newColor)
+                            hue, sat, val = h, s, v
+                            cpState = newColor
+                            
+                            updatePreview()
+                            CP_Frame.BackgroundColor3 = newColor
+                            pcall(function() cpCallback(newColor) end)
+                        end)
+                        
+                        -- ========== CERRAR AL HACER CLICK FUERA ==========
                         InputCheck = utility:CreateConnection(uis.InputBegan, function(Input)
                             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
                                 local Mouse = utility:MouseLocation()
@@ -2325,7 +2539,7 @@ function sections:CreateToggle(Properties)
                                         end
                                         pcall(function() InputCheck:Disconnect() end)
                                         pcall(function() Content_Open_Holder:Destroy() end)
-                                        cpOpen = false -- 🔒 PERMITE ABRIR DE NUEVO
+                                        cpOpen = false
                                     end
                                 end
                             end
@@ -2347,31 +2561,29 @@ function sections:CreateToggle(Properties)
             end
         end
         
-        do -- // Functions
-            function Content:Set(state)
-                Content.State = state
-                Holder_Outline_Frame.BackgroundColor3 = Content.State and Content.Window.Accent or Color3.fromRGB(77, 77, 77)
-                Content.Callback(Content:Get())
-            end
-            
-            function Content:Get()
-                return Content.State
-            end
+        -- ========== FUNCIONES DEL TOGGLE ==========
+        function Content:Set(state)
+            Content.State = state
+            Holder_Outline_Frame.BackgroundColor3 = Content.State and Content.Window.Accent or Color3.fromRGB(77, 77, 77)
+            Content.Callback(Content:Get())
         end
         
-        do -- // Connections
-            utility:CreateConnection(Content_Holder_Button.MouseButton1Click, function(Input)
-                Content:Set(not Content:Get())
-            end)
-            
-            utility:CreateConnection(Content_Holder_Button.MouseEnter, function(Input)
-                Outline_Frame_Gradient.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(180, 180, 180))
-            end)
-            
-            utility:CreateConnection(Content_Holder_Button.MouseLeave, function(Input)
-                Outline_Frame_Gradient.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(140, 140, 140))
-            end)
+        function Content:Get()
+            return Content.State
         end
+        
+        -- ========== CONEXIONES ==========
+        utility:CreateConnection(Content_Holder_Button.MouseButton1Click, function(Input)
+            Content:Set(not Content:Get())
+        end)
+        
+        utility:CreateConnection(Content_Holder_Button.MouseEnter, function(Input)
+            Outline_Frame_Gradient.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(180, 180, 180))
+        end)
+        
+        utility:CreateConnection(Content_Holder_Button.MouseLeave, function(Input)
+            Outline_Frame_Gradient.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(140, 140, 140))
+        end)
         
         Content:Set(Content.State)
     end
@@ -5600,3 +5812,4 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
+
