@@ -1,4 +1,4 @@
-local Passed, Statement = pcall(function()
+return (function()
 	-- [[ // Libraries // ]]
 	local library = {
 		Renders = {},
@@ -5059,3 +5059,5 @@ end
 
 return library
 --hello
+end)() -- <-- Este () ejecuta la función inmediatamente
+
