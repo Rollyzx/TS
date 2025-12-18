@@ -2154,405 +2154,413 @@ function sections:CreateToggle(Properties)
                     })
                     
                     -- ========== 🎨 FUNCIÓN PARA ABRIR COLOR PICKER MEJORADO ==========
--- ========== 🎨 FUNCIÓN PARA ABRIR COLOR PICKER MEJORADO (CORREGIDO) ==========
--- ========== 🎨 FUNCIÓN PARA ABRIR COLOR PICKER MEJORADO (CORREGIDO) ==========
-local function OpenColorPicker()
-    if cpOpen then return end
-    cpOpen = true
-    
-    Content.Section:CloseContent()
-    
-    local Connections = {}
-    local InputCheck
-    
-    -- ========== CONTENEDOR PRINCIPAL ==========
-    local Content_Open_Holder = utility:RenderObject("Frame", {
-        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-        BackgroundTransparency = 1,
-        BorderColor3 = Color3.fromRGB(0, 0, 0),
-        BorderSizePixel = 0,
-        Parent = Content.Section.Extra,
-        Position = UDim2.new(0, CP_Outline.AbsolutePosition.X - Content.Section.Extra.AbsolutePosition.X - 80, 0, CP_Outline.AbsolutePosition.Y - Content.Section.Extra.AbsolutePosition.Y + 10),
-        Size = UDim2.new(0, 200, 0, 220),
-        ZIndex = 6
-    })
-    
-    -- ========== BORDE EXTERIOR ==========
-    local Open_Holder_Outline = utility:RenderObject("Frame", {
-        BackgroundColor3 = Color3.fromRGB(40, 42, 54),
-        BackgroundTransparency = 0,
-        BorderColor3 = Color3.fromRGB(68, 71, 90),
-        BorderMode = "Inset",
-        BorderSizePixel = 2,
-        Parent = Content_Open_Holder,
-        Size = UDim2.new(1, 0, 1, 0),
-        ZIndex = 6
-    })
-    
-    local Open_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(0, 8),
-        Parent = Open_Holder_Outline
-    })
-    
-    -- ========== FRAME INTERIOR ==========
-    local Open_Outline_Frame = utility:RenderObject("Frame", {
-        BackgroundColor3 = Color3.fromRGB(30, 32, 42),
-        BackgroundTransparency = 0,
-        BorderColor3 = Color3.fromRGB(0, 0, 0),
-        BorderSizePixel = 0,
-        Parent = Open_Holder_Outline,
-        Position = UDim2.new(0, 4, 0, 4),
-        Size = UDim2.new(1, -8, 1, -8),
-        ZIndex = 6
-    })
-    
-    local Inner_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(0, 6),
-        Parent = Open_Outline_Frame
-    })
-    
-    -- ========== SELECTOR 2D (SAT/VAL) - CORREGIDO ==========
-    local ValSat_Picker_Outline = utility:RenderObject("Frame", {
-        BackgroundColor3 = Color3.fromRGB(20, 22, 30),
-        BackgroundTransparency = 0,
-        BorderColor3 = Color3.fromRGB(0, 0, 0),
-        BorderSizePixel = 0,
-        Parent = Open_Outline_Frame,
-        Position = UDim2.new(0, 8, 0, 8),
-        Size = UDim2.new(0, 152, 0, 152),
-        ZIndex = 6
-    })
-    
-    local VSat_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(0, 4),
-        Parent = ValSat_Picker_Outline
-    })
-    
-    -- ========== 🔥 GRADIENTES 2D CORREGIDOS ==========
-    -- CAPA BASE: Color puro del hue seleccionado
-    local ValSat_Picker_Color = utility:RenderObject("Frame", {
-        BackgroundColor3 = Color3.fromHSV(0, 1, 1),
-        BackgroundTransparency = 0,
-        BorderSizePixel = 0,
-        Parent = ValSat_Picker_Outline,
-        Position = UDim2.new(0, 2, 0, 2),
-        Size = UDim2.new(1, -4, 1, -4),
-        ZIndex = 6
-    })
-    
-    local VSat_Inner_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(0, 3),
-        Parent = ValSat_Picker_Color
-    })
-    
-    -- 🎨 CAPA 1: Gradiente HORIZONTAL de BLANCO a COLOR PURO
-    -- Frame con gradiente de color blanco → transparente
-    local Sat_Gradient_Frame = utility:RenderObject("Frame", {
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundTransparency = 0,
-        BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 1, 0),
-        ZIndex = 7,
-        Parent = ValSat_Picker_Color
-    })
-    
-    local Sat_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(0, 3),
-        Parent = Sat_Gradient_Frame
-    })
-    
-    -- Gradiente que va de opaco (izquierda) a transparente (derecha)
-    local Sat_Gradient = utility:RenderObject("UIGradient", {
-        Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 0),    -- Izquierda: blanco visible
-            NumberSequenceKeypoint.new(1, 1)     -- Derecha: transparente (muestra color base)
-        }),
-        Rotation = 0,
-        Parent = Sat_Gradient_Frame
-    })
-    
-    -- 🎨 CAPA 2: Gradiente VERTICAL de TRANSPARENTE a NEGRO
-    -- Frame con gradiente de negro transparente → negro sólido
-    local Val_Gradient_Frame = utility:RenderObject("Frame", {
-        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-        BackgroundTransparency = 0,
-        BorderSizePixel = 0,
-        Size = UDim2.new(1, 0, 1, 0),
-        ZIndex = 8,
-        Parent = ValSat_Picker_Color
-    })
-    
-    local Val_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(0, 3),
-        Parent = Val_Gradient_Frame
-    })
-    
-    -- Gradiente que va de transparente (arriba) a opaco (abajo)
-    local Val_Gradient = utility:RenderObject("UIGradient", {
-        Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 1),    -- Arriba: transparente
-            NumberSequenceKeypoint.new(1, 0)     -- Abajo: negro visible
-        }),
-        Rotation = 90,
-        Parent = Val_Gradient_Frame
-    })
-    
-    -- ========== CURSOR 2D ==========
-    local VS_Cursor = utility:RenderObject("Frame", {
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundTransparency = 1,
-        BorderColor3 = Color3.fromRGB(255, 255, 255),
-        BorderSizePixel = 3,
-        Size = UDim2.new(0, 14, 0, 14),
-        ZIndex = 9,
-        Parent = ValSat_Picker_Color
-    })
-    
-    local VS_Cursor_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(1, 0),
-        Parent = VS_Cursor
-    })
-    
-    local VS_Cursor_Inner = utility:RenderObject("Frame", {
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-        BackgroundTransparency = 0,
-        BorderSizePixel = 0,
-        Position = UDim2.new(0.5, 0, 0.5, 0),
-        Size = UDim2.new(0, 4, 0, 4),
-        ZIndex = 10,
-        Parent = VS_Cursor
-    })
-    
-    local VS_Inner_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(1, 0),
-        Parent = VS_Cursor_Inner
-    })
-    
-    -- ========== BARRA DE HUE ==========
-    local Hue_Picker_Outline = utility:RenderObject("Frame", {
-        BackgroundColor3 = Color3.fromRGB(20, 22, 30),
-        BackgroundTransparency = 0,
-        BorderColor3 = Color3.fromRGB(0, 0, 0),
-        BorderSizePixel = 0,
-        Parent = Open_Outline_Frame,
-        Position = UDim2.new(1, -24, 0, 8),
-        Size = UDim2.new(0, 16, 0, 152),
-        ZIndex = 6
-    })
-    
-    local Hue_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(0, 4),
-        Parent = Hue_Picker_Outline
-    })
-    
-    -- ========== GRADIENTE HUE (ARCOÍRIS) ==========
-    local Hue_Gradient_Frame = utility:RenderObject("Frame", {
-        BackgroundColor3 = Color3.fromRGB(255, 0, 0),
-        BackgroundTransparency = 0,
-        BorderSizePixel = 0,
-        Parent = Hue_Picker_Outline,
-        Position = UDim2.new(0, 2, 0, 2),
-        Size = UDim2.new(1, -4, 1, -4),
-        ZIndex = 6
-    })
-    
-    local Hue_Gradient_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(0, 3),
-        Parent = Hue_Gradient_Frame
-    })
-    
-    local Hue_Gradient = utility:RenderObject("UIGradient", {
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),      -- Rojo
-            ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)), -- Amarillo
-            ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),   -- Verde
-            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),  -- Cyan
-            ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),   -- Azul
-            ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)), -- Magenta
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))       -- Rojo
-        }),
-        Rotation = 90,
-        Parent = Hue_Gradient_Frame
-    })
-    
-    -- ========== CURSOR HUE ==========
-    local Hue_Cursor = utility:RenderObject("Frame", {
-        AnchorPoint = Vector2.new(0.5, 0.5),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BorderColor3 = Color3.fromRGB(0, 0, 0),
-        BorderSizePixel = 2,
-        Size = UDim2.new(1, 4, 0, 4),
-        ZIndex = 7,
-        Parent = Hue_Picker_Outline
-    })
-    
-    local Hue_Cursor_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(0, 2),
-        Parent = Hue_Cursor
-    })
-    
-    -- ========== CAMPO DE TEXTO HEX ==========
-    local Hex_Container = utility:RenderObject("Frame", {
-        BackgroundColor3 = Color3.fromRGB(20, 22, 30),
-        BackgroundTransparency = 0,
-        BorderColor3 = Color3.fromRGB(0, 0, 0),
-        BorderSizePixel = 0,
-        Parent = Open_Outline_Frame,
-        Position = UDim2.new(0, 8, 1, -36),
-        Size = UDim2.new(1, -16, 0, 28),
-        ZIndex = 6
-    })
-    
-    local Hex_Corner = utility:RenderObject("UICorner", {
-        CornerRadius = UDim.new(0, 4),
-        Parent = Hex_Container
-    })
-    
-    local Hex_Label = utility:RenderObject("TextLabel", {
-        BackgroundTransparency = 1,
-        Parent = Hex_Container,
-        Position = UDim2.new(0, 8, 0, 0),
-        Size = UDim2.new(0, 25, 1, 0),
-        Font = Enum.Font.Code,
-        Text = "HEX",
-        TextColor3 = Color3.fromRGB(150, 155, 175),
-        TextSize = 12,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        ZIndex = 7
-    })
-    
-    local Hex_TextBox = utility:RenderObject("TextBox", {
-        BackgroundTransparency = 1,
-        Parent = Hex_Container,
-        Position = UDim2.new(0, 40, 0, 0),
-        Size = UDim2.new(1, -48, 1, 0),
-        Font = Enum.Font.Code,
-        PlaceholderText = "#ffffff",
-        Text = Color3ToHex(cpState),
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        TextSize = 14,
-        TextXAlignment = Enum.TextXAlignment.Left,
-        ClearTextOnFocus = false,
-        ZIndex = 7
-    })
-    
-    -- ========== LÓGICA DEL COLOR PICKER ==========
-    local hue, sat, val = 0, 1, 1
-    if typeof(cpState) == "Color3" then
-        local h, s, v = Color3.toHSV(cpState)
-        hue, sat, val = h or 0, s or 1, v or 1
-    end
-    
-    local function clamp(v) return math.clamp(v, 0, 1) end
-    
-    local function updatePreview()
-        local selected = Color3.fromHSV(hue, sat, val)
-        
-        -- 🔥 ACTUALIZAR EL COLOR BASE DEL CUADRO GRANDE
-        pcall(function()
-            ValSat_Picker_Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
-            CP_Frame.BackgroundColor3 = selected
-            Hex_TextBox.Text = Color3ToHex(selected)
-        end)
-        
-        -- Actualizar posición de cursores
-        local yPos = 1 - val
-        pcall(function()
-            VS_Cursor.Position = UDim2.new(sat, 0, yPos, 0)
-            Hue_Cursor.Position = UDim2.new(0.5, 0, 1 - hue, 0)
-        end)
-    end
-    
-    local draggingVS = false
-    local draggingHue = false
-    
-    local function setFromValSatFromMouse()
-        local mouse = utility:MouseLocation()
-        local x = clamp((mouse.X - ValSat_Picker_Outline.AbsolutePosition.X) / math.max(1, ValSat_Picker_Outline.AbsoluteSize.X))
-        local y = clamp((mouse.Y - ValSat_Picker_Outline.AbsolutePosition.Y) / math.max(1, ValSat_Picker_Outline.AbsoluteSize.Y))
-        sat = x
-        val = 1 - y
-        updatePreview()
-        local col = Color3.fromHSV(hue, sat, val)
-        cpState = col
-        pcall(function() cpCallback(col) end)
-    end
-    
-    local function setFromHueFromMouse()
-        local mouse = utility:MouseLocation()
-        local y = clamp((mouse.Y - Hue_Picker_Outline.AbsolutePosition.Y) / math.max(1, Hue_Picker_Outline.AbsoluteSize.Y))
-        hue = 1 - y
-        updatePreview()
-        local col = Color3.fromHSV(hue, sat, val)
-        cpState = col
-        pcall(function() cpCallback(col) end)
-    end
-    
-    updatePreview()
-    
-    -- ========== EVENTOS ==========
-    table.insert(Connections, utility:CreateConnection(ValSat_Picker_Color.InputBegan, function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            draggingVS = true
-            setFromValSatFromMouse()
-        end
-    end))
-    
-    table.insert(Connections, utility:CreateConnection(Hue_Picker_Outline.InputBegan, function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            draggingHue = true
-            setFromHueFromMouse()
-        end
-    end))
-    
-    table.insert(Connections, utility:CreateConnection(uis.InputChanged, function(input)
-        if draggingVS and input.UserInputType == Enum.UserInputType.MouseMovement then
-            setFromValSatFromMouse()
-        elseif draggingHue and input.UserInputType == Enum.UserInputType.MouseMovement then
-            setFromHueFromMouse()
-        end
-    end))
-    
-    table.insert(Connections, utility:CreateConnection(uis.InputEnded, function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            draggingVS = false
-            draggingHue = false
-        end
-    end))
-    
-    -- ========== TEXTBOX HEX ==========
-    Hex_TextBox.FocusLost:Connect(function(enterPressed)
-        local hexText = Hex_TextBox.Text
-        local newColor = HexToColor3(hexText)
-        
-        local h, s, v = Color3.toHSV(newColor)
-        hue, sat, val = h, s, v
-        cpState = newColor
-        
-        updatePreview()
-        CP_Frame.BackgroundColor3 = newColor
-        pcall(function() cpCallback(newColor) end)
-    end)
-    
-    -- ========== CERRAR AL HACER CLICK FUERA ==========
-    InputCheck = utility:CreateConnection(uis.InputBegan, function(Input)
-        if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-            local Mouse = utility:MouseLocation()
-            if not (Mouse.X > Content_Open_Holder.AbsolutePosition.X and Mouse.Y > (Content_Open_Holder.AbsolutePosition.Y + 36) and Mouse.X < (Content_Open_Holder.AbsolutePosition.X + Content_Open_Holder.AbsoluteSize.X) and Mouse.Y < (Content_Open_Holder.AbsolutePosition.Y + Content_Open_Holder.AbsoluteSize.Y + 36)) then
-                if not (Mouse.X > CP_Outline.AbsolutePosition.X and Mouse.Y > CP_Outline.AbsolutePosition.Y and Mouse.X < (CP_Outline.AbsolutePosition.X + CP_Outline.AbsoluteSize.X) and Mouse.Y < (CP_Outline.AbsolutePosition.Y + CP_Outline.AbsoluteSize.Y)) then
-                    for _, conn in pairs(Connections) do
-                        pcall(function() conn:Disconnect() end)
+                    local function OpenColorPicker()
+                        if cpOpen then return end
+                        cpOpen = true
+                        
+                        Content.Section:CloseContent()
+                        
+                        local Connections = {}
+                        local InputCheck
+                        
+                        -- ========== CONTENEDOR PRINCIPAL ==========
+                        local Content_Open_Holder = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                            BackgroundTransparency = 1,
+                            BorderColor3 = Color3.fromRGB(0, 0, 0),
+                            BorderSizePixel = 0,
+                            Parent = Content.Section.Extra,
+                            Position = UDim2.new(0, CP_Outline.AbsolutePosition.X - Content.Section.Extra.AbsolutePosition.X - 80, 0, CP_Outline.AbsolutePosition.Y - Content.Section.Extra.AbsolutePosition.Y + 10),
+                            Size = UDim2.new(0, 200, 0, 220),
+                            ZIndex = 6
+                        })
+                        
+                        -- ========== BORDE EXTERIOR ==========
+                        local Open_Holder_Outline = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(40, 42, 54),
+                            BackgroundTransparency = 0,
+                            BorderColor3 = Color3.fromRGB(68, 71, 90),
+                            BorderMode = "Inset",
+                            BorderSizePixel = 2,
+                            Parent = Content_Open_Holder,
+                            Size = UDim2.new(1, 0, 1, 0),
+                            ZIndex = 6
+                        })
+                        
+                        local Open_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 8),
+                            Parent = Open_Holder_Outline
+                        })
+                        
+                        -- ========== FRAME INTERIOR ==========
+                        local Open_Outline_Frame = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(30, 32, 42),
+                            BackgroundTransparency = 0,
+                            BorderColor3 = Color3.fromRGB(0, 0, 0),
+                            BorderSizePixel = 0,
+                            Parent = Open_Holder_Outline,
+                            Position = UDim2.new(0, 4, 0, 4),
+                            Size = UDim2.new(1, -8, 1, -8),
+                            ZIndex = 6
+                        })
+                        
+                        local Inner_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 6),
+                            Parent = Open_Outline_Frame
+                        })
+                        
+                        -- ========== SELECTOR 2D (SAT/VAL) ==========
+                        local ValSat_Picker_Outline = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(20, 22, 30),
+                            BackgroundTransparency = 0,
+                            BorderColor3 = Color3.fromRGB(0, 0, 0),
+                            BorderSizePixel = 0,
+                            Parent = Open_Outline_Frame,
+                            Position = UDim2.new(0, 8, 0, 8),
+                            Size = UDim2.new(0, 152, 0, 152),
+                            ZIndex = 6
+                        })
+                        
+                        local VSat_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 4),
+                            Parent = ValSat_Picker_Outline
+                        })
+                        
+                        -- ========== BARRA DE HUE ==========
+                        local Hue_Picker_Outline = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(20, 22, 30),
+                            BackgroundTransparency = 0,
+                            BorderColor3 = Color3.fromRGB(0, 0, 0),
+                            BorderSizePixel = 0,
+                            Parent = Open_Outline_Frame,
+                            Position = UDim2.new(1, -24, 0, 8),
+                            Size = UDim2.new(0, 16, 0, 152),
+                            ZIndex = 6
+                        })
+                        
+                        local Hue_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 4),
+                            Parent = Hue_Picker_Outline
+                        })
+                        
+                        -- ========== CAMPO DE TEXTO HEX ==========
+                        local Hex_Container = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(20, 22, 30),
+                            BackgroundTransparency = 0,
+                            BorderColor3 = Color3.fromRGB(0, 0, 0),
+                            BorderSizePixel = 0,
+                            Parent = Open_Outline_Frame,
+                            Position = UDim2.new(0, 8, 1, -36),
+                            Size = UDim2.new(1, -16, 0, 28),
+                            ZIndex = 6
+                        })
+                        
+                        local Hex_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 4),
+                            Parent = Hex_Container
+                        })
+                        
+                        local Hex_Label = utility:RenderObject("TextLabel", {
+                            BackgroundTransparency = 1,
+                            Parent = Hex_Container,
+                            Position = UDim2.new(0, 8, 0, 0),
+                            Size = UDim2.new(0, 25, 1, 0),
+                            Font = Enum.Font.Code,
+                            Text = "HEX",
+                            TextColor3 = Color3.fromRGB(150, 155, 175),
+                            TextSize = 12,
+                            TextXAlignment = Enum.TextXAlignment.Left,
+                            ZIndex = 7
+                        })
+                        
+                        local Hex_TextBox = utility:RenderObject("TextBox", {
+                            BackgroundTransparency = 1,
+                            Parent = Hex_Container,
+                            Position = UDim2.new(0, 40, 0, 0),
+                            Size = UDim2.new(1, -48, 1, 0),
+                            Font = Enum.Font.Code,
+                            PlaceholderText = "#ffffff",
+                            Text = Color3ToHex(cpState),
+                            TextColor3 = Color3.fromRGB(255, 255, 255),
+                            TextSize = 14,
+                            TextXAlignment = Enum.TextXAlignment.Left,
+                            ClearTextOnFocus = false,
+                            ZIndex = 7
+                        })
+                        
+                        -- ========== GRADIENTE 2D ==========
+                        local ValSat_Picker_Color = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromHSV(0,1,1),
+                            BackgroundTransparency = 0,
+                            BorderColor3 = Color3.fromRGB(0, 0, 0),
+                            BorderSizePixel = 0,
+                            Parent = ValSat_Picker_Outline,
+                            Position = UDim2.new(0, 2, 0, 2),
+                            Size = UDim2.new(1, -4, 1, -4),
+                            ZIndex = 6
+                        })
+                        
+                        local VSat_Inner_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 3),
+                            Parent = ValSat_Picker_Color
+                        })
+                        
+                        -- Gradiente horizontal (blanco a transparente)
+                        local Sat_Gradient = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                            BackgroundTransparency = 0,
+                            BorderSizePixel = 0,
+                            Parent = ValSat_Picker_Color,
+                            Size = UDim2.new(1, 0, 1, 0),
+                            ZIndex = 6
+                        })
+                        
+                        local Sat_Grad = utility:RenderObject("UIGradient", {
+                            Color = ColorSequence.new(Color3.new(1,1,1), Color3.new(1,1,1)),
+                            Transparency = NumberSequence.new({
+                                NumberSequenceKeypoint.new(0, 0),
+                                NumberSequenceKeypoint.new(1, 1)
+                            }),
+                            Rotation = 0,
+                            Parent = Sat_Gradient
+                        })
+                        
+                        local Sat_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 3),
+                            Parent = Sat_Gradient
+                        })
+                        
+                        -- Gradiente vertical (transparente a negro)
+                        local Val_Gradient = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+                            BackgroundTransparency = 0,
+                            BorderSizePixel = 0,
+                            Parent = ValSat_Picker_Color,
+                            Size = UDim2.new(1, 0, 1, 0),
+                            ZIndex = 7
+                        })
+                        
+                        local Val_Grad = utility:RenderObject("UIGradient", {
+                            Color = ColorSequence.new(Color3.new(0,0,0), Color3.new(0,0,0)),
+                            Transparency = NumberSequence.new({
+                                NumberSequenceKeypoint.new(0, 1),
+                                NumberSequenceKeypoint.new(1, 0)
+                            }),
+                            Rotation = 90,
+                            Parent = Val_Gradient
+                        })
+                        
+                        local Val_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 3),
+                            Parent = Val_Gradient
+                        })
+                        
+                        -- ========== CURSOR 2D ==========
+                        local VS_Cursor = utility:RenderObject("Frame", {
+                            AnchorPoint = Vector2.new(0.5, 0.5),
+                            BackgroundColor3 = Color3.fromRGB(255,255,255),
+                            BackgroundTransparency = 1,
+                            BorderColor3 = Color3.fromRGB(255,255,255),
+                            BorderSizePixel = 3,
+                            Size = UDim2.new(0,14,0,14),
+                            ZIndex = 8,
+                            Parent = ValSat_Picker_Color
+                        })
+                        
+                        local VS_Cursor_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(1, 0),
+                            Parent = VS_Cursor
+                        })
+                        
+                        local VS_Cursor_Inner = utility:RenderObject("Frame", {
+                            AnchorPoint = Vector2.new(0.5, 0.5),
+                            BackgroundColor3 = Color3.fromRGB(0,0,0),
+                            BackgroundTransparency = 0,
+                            BorderSizePixel = 0,
+                            Position = UDim2.new(0.5, 0, 0.5, 0),
+                            Size = UDim2.new(0,4,0,4),
+                            ZIndex = 9,
+                            Parent = VS_Cursor
+                        })
+                        
+                        local VS_Inner_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(1, 0),
+                            Parent = VS_Cursor_Inner
+                        })
+                        
+                        -- ========== GRADIENTE HUE ==========
+                        local Hue_Gradient_Frame = utility:RenderObject("Frame", {
+                            BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+                            BackgroundTransparency = 0,
+                            BorderSizePixel = 0,
+                            Parent = Hue_Picker_Outline,
+                            Position = UDim2.new(0, 2, 0, 2),
+                            Size = UDim2.new(1, -4, 1, -4),
+                            ZIndex = 6
+                        })
+                        
+                        local Hue_Gradient_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 3),
+                            Parent = Hue_Gradient_Frame
+                        })
+                        
+                        local Hue_Gradient = utility:RenderObject("UIGradient", {
+                            Color = ColorSequence.new({
+                                ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+                                ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)),
+                                ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)),
+                                ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+                                ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)),
+                                ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)),
+                                ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+                            }),
+                            Rotation = 90,
+                            Parent = Hue_Gradient_Frame
+                        })
+                        
+                        -- ========== CURSOR HUE ==========
+                        local Hue_Cursor = utility:RenderObject("Frame", {
+                            AnchorPoint = Vector2.new(0.5,0.5),
+                            BackgroundColor3 = Color3.fromRGB(255,255,255),
+                            BorderColor3 = Color3.fromRGB(0,0,0),
+                            BorderSizePixel = 2,
+                            Size = UDim2.new(1,4,0,4),
+                            ZIndex = 7,
+                            Parent = Hue_Picker_Outline
+                        })
+                        
+                        local Hue_Cursor_Corner = utility:RenderObject("UICorner", {
+                            CornerRadius = UDim.new(0, 2),
+                            Parent = Hue_Cursor
+                        })
+                        
+                        -- ========== LÓGICA DEL COLOR PICKER ==========
+                        local hue, sat, val = 0, 1, 1
+                        if typeof(cpState) == "Color3" then
+                            local h,s,v = Color3.toHSV(cpState)
+                            hue, sat, val = h or 0, s or 1, v or 1
+                        end
+                        
+                        local function clamp(v) return math.clamp(v, 0, 1) end
+                        
+                        local function updatePreview()
+                            local selected = Color3.fromHSV(hue, sat, val)
+                            pcall(function()
+                                ValSat_Picker_Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+                                CP_Frame.BackgroundColor3 = selected
+                                Hex_TextBox.Text = Color3ToHex(selected)
+                            end)
+                            
+                            local yPos = 1 - val
+                            pcall(function()
+                                VS_Cursor.Position = UDim2.new(sat, 0, yPos, 0)
+                                Hue_Cursor.Position = UDim2.new(0.5, 0, 1 - hue, 0)
+                            end)
+                        end
+                        
+                        local draggingVS = false
+                        local draggingHue = false
+                        
+                        local function setFromValSatFromMouse()
+                            local mouse = utility:MouseLocation()
+                            local x = clamp((mouse.X - ValSat_Picker_Outline.AbsolutePosition.X) / math.max(1, ValSat_Picker_Outline.AbsoluteSize.X))
+                            local y = clamp((mouse.Y - ValSat_Picker_Outline.AbsolutePosition.Y) / math.max(1, ValSat_Picker_Outline.AbsoluteSize.Y))
+                            sat = x
+                            val = 1 - y
+                            updatePreview()
+                            local col = Color3.fromHSV(hue, sat, val)
+                            cpState = col
+                            pcall(function() cpCallback(col) end)
+                        end
+                        
+                        local function setFromHueFromMouse()
+                            local mouse = utility:MouseLocation()
+                            local y = clamp((mouse.Y - Hue_Picker_Outline.AbsolutePosition.Y) / math.max(1, Hue_Picker_Outline.AbsoluteSize.Y))
+                            hue = 1 - y
+                            updatePreview()
+                            local col = Color3.fromHSV(hue, sat, val)
+                            cpState = col
+                            pcall(function() cpCallback(col) end)
+                        end
+                        
+                        updatePreview()
+                        
+                        -- ========== EVENTOS ==========
+                        table.insert(Connections, utility:CreateConnection(ValSat_Picker_Color.InputBegan, function(input)
+                            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                draggingVS = true
+                                setFromValSatFromMouse()
+                            end
+                        end))
+                        
+                        table.insert(Connections, utility:CreateConnection(Hue_Picker_Outline.InputBegan, function(input)
+                            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                draggingHue = true
+                                setFromHueFromMouse()
+                            end
+                        end))
+                        
+                        table.insert(Connections, utility:CreateConnection(uis.InputChanged, function(input)
+                            if draggingVS and input.UserInputType == Enum.UserInputType.MouseMovement then
+                                setFromValSatFromMouse()
+                            elseif draggingHue and input.UserInputType == Enum.UserInputType.MouseMovement then
+                                setFromHueFromMouse()
+                            end
+                        end))
+                        
+                        table.insert(Connections, utility:CreateConnection(uis.InputEnded, function(input)
+                            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                draggingVS = false
+                                draggingHue = false
+                            end
+                        end))
+                        
+                        -- ========== TEXTBOX HEX ==========
+                        Hex_TextBox.FocusLost:Connect(function(enterPressed)
+                            local hexText = Hex_TextBox.Text
+                            local newColor = HexToColor3(hexText)
+                            
+                            local h, s, v = Color3.toHSV(newColor)
+                            hue, sat, val = h, s, v
+                            cpState = newColor
+                            
+                            updatePreview()
+                            CP_Frame.BackgroundColor3 = newColor
+                            pcall(function() cpCallback(newColor) end)
+                        end)
+                        
+                        -- ========== CERRAR AL HACER CLICK FUERA ==========
+                        InputCheck = utility:CreateConnection(uis.InputBegan, function(Input)
+                            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                                local Mouse = utility:MouseLocation()
+                                if not (Mouse.X > Content_Open_Holder.AbsolutePosition.X and Mouse.Y > (Content_Open_Holder.AbsolutePosition.Y + 36) and Mouse.X < (Content_Open_Holder.AbsolutePosition.X + Content_Open_Holder.AbsoluteSize.X) and Mouse.Y < (Content_Open_Holder.AbsolutePosition.Y + Content_Open_Holder.AbsoluteSize.Y + 36)) then
+                                    if not (Mouse.X > CP_Outline.AbsolutePosition.X and Mouse.Y > CP_Outline.AbsolutePosition.Y and Mouse.X < (CP_Outline.AbsolutePosition.X + CP_Outline.AbsoluteSize.X) and Mouse.Y < (CP_Outline.AbsolutePosition.Y + CP_Outline.AbsoluteSize.Y)) then
+                                        for _, conn in pairs(Connections) do
+                                            pcall(function() conn:Disconnect() end)
+                                        end
+                                        pcall(function() InputCheck:Disconnect() end)
+                                        pcall(function() Content_Open_Holder:Destroy() end)
+                                        cpOpen = false
+                                    end
+                                end
+                            end
+                        end)
                     end
-                    pcall(function() InputCheck:Disconnect() end)
-                    pcall(function() Content_Open_Holder:Destroy() end)
-                    cpOpen = false
+                    
+                    utility:CreateConnection(CP_Button.MouseButton1Click, function()
+                        OpenColorPicker()
+                    end)
+                    
+                    utility:CreateConnection(CP_Button.MouseEnter, function()
+                        CP_Gradient.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(180, 180, 180))
+                    end)
+                    
+                    utility:CreateConnection(CP_Button.MouseLeave, function()
+                        CP_Gradient.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(140, 140, 140))
+                    end)
                 end
             end
         end
-    end)
-end
         
         -- ========== FUNCIONES DEL TOGGLE ==========
         function Content:Set(state)
@@ -5805,8 +5813,5 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
-
-
-
 
 
