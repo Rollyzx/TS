@@ -1986,7 +1986,6 @@ end
 -- 🎨 COLORPICKER MEJORADO DENTRO DE TOGGLE
 -- ============================================================================
 
-
 function sections:CreateToggle(Properties)
     Properties = Properties or {}
     
@@ -5813,5 +5812,3 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
-
-
