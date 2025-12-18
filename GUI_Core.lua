@@ -2155,6 +2155,7 @@ function sections:CreateToggle(Properties)
                     
                     -- ========== 🎨 FUNCIÓN PARA ABRIR COLOR PICKER MEJORADO ==========
 -- ========== 🎨 FUNCIÓN PARA ABRIR COLOR PICKER MEJORADO (CORREGIDO) ==========
+-- ========== 🎨 FUNCIÓN PARA ABRIR COLOR PICKER MEJORADO (CORREGIDO) ==========
 local function OpenColorPicker()
     if cpOpen then return end
     cpOpen = true
@@ -2228,7 +2229,7 @@ local function OpenColorPicker()
     })
     
     -- ========== 🔥 GRADIENTES 2D CORREGIDOS ==========
-    -- Capa base: Color puro del hue seleccionado
+    -- CAPA BASE: Color puro del hue seleccionado
     local ValSat_Picker_Color = utility:RenderObject("Frame", {
         BackgroundColor3 = Color3.fromHSV(0, 1, 1),
         BackgroundTransparency = 0,
@@ -2244,62 +2245,56 @@ local function OpenColorPicker()
         Parent = ValSat_Picker_Color
     })
     
-    -- 🎨 CAPA 1: Gradiente horizontal de BLANCO (izquierda) a TRANSPARENTE (derecha)
-    -- Esto crea la saturación: menos saturación = más blanco
-    local Sat_Layer = utility:RenderObject("Frame", {
+    -- 🎨 CAPA 1: Gradiente HORIZONTAL de BLANCO a COLOR PURO
+    -- Frame con gradiente de color blanco → transparente
+    local Sat_Gradient_Frame = utility:RenderObject("Frame", {
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        BackgroundTransparency = 1,
+        BackgroundTransparency = 0,
         BorderSizePixel = 0,
         Size = UDim2.new(1, 0, 1, 0),
         ZIndex = 7,
         Parent = ValSat_Picker_Color
     })
     
-    local Sat_Gradient = utility:RenderObject("UIGradient", {
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255))
-        }),
-        Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 0),    -- Izquierda: blanco sólido
-            NumberSequenceKeypoint.new(1, 1)     -- Derecha: totalmente transparente
-        }),
-        Rotation = 0,
-        Parent = Sat_Layer
-    })
-    
     local Sat_Corner = utility:RenderObject("UICorner", {
         CornerRadius = UDim.new(0, 3),
-        Parent = Sat_Layer
+        Parent = Sat_Gradient_Frame
     })
     
-    -- 🎨 CAPA 2: Gradiente vertical de TRANSPARENTE (arriba) a NEGRO (abajo)
-    -- Esto crea el valor: menos valor = más negro
-    local Val_Layer = utility:RenderObject("Frame", {
+    -- Gradiente que va de opaco (izquierda) a transparente (derecha)
+    local Sat_Gradient = utility:RenderObject("UIGradient", {
+        Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0),    -- Izquierda: blanco visible
+            NumberSequenceKeypoint.new(1, 1)     -- Derecha: transparente (muestra color base)
+        }),
+        Rotation = 0,
+        Parent = Sat_Gradient_Frame
+    })
+    
+    -- 🎨 CAPA 2: Gradiente VERTICAL de TRANSPARENTE a NEGRO
+    -- Frame con gradiente de negro transparente → negro sólido
+    local Val_Gradient_Frame = utility:RenderObject("Frame", {
         BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-        BackgroundTransparency = 1,
+        BackgroundTransparency = 0,
         BorderSizePixel = 0,
         Size = UDim2.new(1, 0, 1, 0),
         ZIndex = 8,
         Parent = ValSat_Picker_Color
     })
     
-    local Val_Gradient = utility:RenderObject("UIGradient", {
-        Color = ColorSequence.new({
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
-        }),
-        Transparency = NumberSequence.new({
-            NumberSequenceKeypoint.new(0, 1),    -- Arriba: totalmente transparente
-            NumberSequenceKeypoint.new(1, 0)     -- Abajo: negro sólido
-        }),
-        Rotation = 90,
-        Parent = Val_Layer
-    })
-    
     local Val_Corner = utility:RenderObject("UICorner", {
         CornerRadius = UDim.new(0, 3),
-        Parent = Val_Layer
+        Parent = Val_Gradient_Frame
+    })
+    
+    -- Gradiente que va de transparente (arriba) a opaco (abajo)
+    local Val_Gradient = utility:RenderObject("UIGradient", {
+        Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 1),    -- Arriba: transparente
+            NumberSequenceKeypoint.new(1, 0)     -- Abajo: negro visible
+        }),
+        Rotation = 90,
+        Parent = Val_Gradient_Frame
     })
     
     -- ========== CURSOR 2D ==========
@@ -5810,6 +5805,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 return library  -- ✅ Retornar la tabla
+
 
 
 
