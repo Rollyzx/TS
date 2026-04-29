@@ -4208,7 +4208,6 @@ end
 		end
 	end
 
-	-- [[ // ESP FUNCTIONS // ]]
 -- [[ // ESP SYSTEM MEJORADO // ]]
 do
 	local RunService = game:GetService("RunService")
@@ -4222,7 +4221,7 @@ do
 	-- ============================================================================
 	-- CONFIGURACIÓN GLOBAL ESP
 	-- ============================================================================
-	
+
 	_G.ESPSettings = {
 		-- Box ESP
 		BoxEnabled = false,
@@ -4230,22 +4229,30 @@ do
 		BoxOutlineEnabled = true,
 		BoxOutlineColor = Color3.fromRGB(0, 0, 0),
 		BoxThickness = 1,
-		
+
+		-- Box Fill  ← NUEVO
+		BoxFillEnabled = false,
+		BoxFillColor = Color3.fromRGB(255, 60, 60),
+		BoxFillTransparency = 0.7,
+
 		-- Health Bar
 		HealthBarEnabled = false,
 		HealthBarGradient = true,
-		
+		HealthBarColorHigh = Color3.fromRGB(0, 255, 100),   -- ← NUEVO (faltaba)
+		HealthBarColorLow  = Color3.fromRGB(255, 50, 50),   -- ← NUEVO (faltaba)
+
 		-- Skeleton
 		SkeletonEnabled = false,
 		SkeletonColor = Color3.fromRGB(255, 255, 255),
+		SkeletonOutlineColor = Color3.fromRGB(0, 0, 0),     -- ← NUEVO
 		SkeletonThickness = 1,
-		
+
 		-- Glow/Chams
 		GlowEnabled = false,
 		GlowColor = Color3.fromRGB(0, 255, 0),
 		GlowTransparency = 0.5,
 		SoftESP = false,
-		
+
 		-- Name
 		NameEnabled = false,
 		NameColor = Color3.fromRGB(255, 255, 255),
@@ -4253,19 +4260,21 @@ do
 		NameGradientColor1 = Color3.fromRGB(255, 100, 100),
 		NameGradientColor2 = Color3.fromRGB(100, 100, 255),
 		NameOutline = true,
+		NameOutlineColor = Color3.fromRGB(0, 0, 0),         -- ← NUEVO
 		NameSize = 13,
-		
+
 		-- Distance
 		DistanceEnabled = false,
 		DistanceColor = Color3.fromRGB(200, 200, 200),
 		DistanceOutline = true,
-		
+		MaxDistance = 1000,   -- ← RENOMBRADO: antes era RenderDistance
+
 		-- Tracers
 		TracersEnabled = false,
 		TracersColor = Color3.fromRGB(255, 255, 255),
-		TracersOrigin = "Bottom", -- "Bottom", "Middle", "Top"
+		TracersOrigin = "Bottom",
 		TracersThickness = 1,
-		
+
 		-- Checks
 		TeamCheck = false,
 		TeamColor = Color3.fromRGB(100, 255, 100),
@@ -4274,13 +4283,13 @@ do
 		VisibleCheck = false,
 		VisibleColor = Color3.fromRGB(100, 255, 100),
 		NotVisibleColor = Color3.fromRGB(255, 100, 100),
-		
-		-- Sizing & Distance
-		RenderDistance = 10000,
-		SizingType = "Dynamic", -- "Dynamic", "Fixed", "Scaled"
+
+		-- Sizing
+		RenderDistance = 10000,   -- distancia máxima de render interno
+		SizingType = "Dynamic",
 		FixedSize = Vector2.new(100, 150),
 		ScaleFactor = 1.0,
-		
+
 		-- General
 		TrackedPlayers = {},
 		FOV_TanHalf = math.tan(math.rad(Camera.FieldOfView * 0.5)),
@@ -4291,7 +4300,7 @@ do
 	-- ============================================================================
 	-- UTILIDADES
 	-- ============================================================================
-	
+
 	local function IsTeammate(player)
 		if not _G.ESPSettings.TeamCheck then return false end
 		if not player or not localPlayer then return false end
@@ -4303,50 +4312,44 @@ do
 		rayParams.FilterType = Enum.RaycastFilterType.Blacklist
 		rayParams.FilterDescendantsInstances = {localPlayer.Character, ignoreModel}
 		rayParams.IgnoreWater = true
-		
 		local ray = Workspace:Raycast(fromPos, (toPos - fromPos), rayParams)
 		return ray == nil
 	end
 
 	local function FindHeadAndTorso(model)
 		local head = model:FindFirstChild("Head")
-		local torso = model:FindFirstChild("Torso") 
-			or model:FindFirstChild("UpperTorso") 
+		local torso = model:FindFirstChild("Torso")
+			or model:FindFirstChild("UpperTorso")
 			or model:FindFirstChild("LowerTorso")
-		
-		if head and torso then
-			return head, torso
-		end
+		if head and torso then return head, torso end
 		return nil, nil
 	end
 
 	local function GetCharacterParts(model)
 		local parts = {
-			Head = model:FindFirstChild("Head"),
-			UpperTorso = model:FindFirstChild("UpperTorso"),
-			LowerTorso = model:FindFirstChild("LowerTorso"),
-			LeftUpperArm = model:FindFirstChild("LeftUpperArm"),
-			LeftLowerArm = model:FindFirstChild("LeftLowerArm"),
-			LeftHand = model:FindFirstChild("LeftHand"),
+			Head          = model:FindFirstChild("Head"),
+			UpperTorso    = model:FindFirstChild("UpperTorso"),
+			LowerTorso    = model:FindFirstChild("LowerTorso"),
+			LeftUpperArm  = model:FindFirstChild("LeftUpperArm"),
+			LeftLowerArm  = model:FindFirstChild("LeftLowerArm"),
+			LeftHand      = model:FindFirstChild("LeftHand"),
 			RightUpperArm = model:FindFirstChild("RightUpperArm"),
 			RightLowerArm = model:FindFirstChild("RightLowerArm"),
-			RightHand = model:FindFirstChild("RightHand"),
-			LeftUpperLeg = model:FindFirstChild("LeftUpperLeg"),
-			LeftLowerLeg = model:FindFirstChild("LeftLowerLeg"),
-			LeftFoot = model:FindFirstChild("LeftFoot"),
+			RightHand     = model:FindFirstChild("RightHand"),
+			LeftUpperLeg  = model:FindFirstChild("LeftUpperLeg"),
+			LeftLowerLeg  = model:FindFirstChild("LeftLowerLeg"),
+			LeftFoot      = model:FindFirstChild("LeftFoot"),
 			RightUpperLeg = model:FindFirstChild("RightUpperLeg"),
 			RightLowerLeg = model:FindFirstChild("RightLowerLeg"),
-			RightFoot = model:FindFirstChild("RightFoot")
+			RightFoot     = model:FindFirstChild("RightFoot"),
 		}
-		
 		if not parts.UpperTorso then
-			parts.Torso = model:FindFirstChild("Torso")
-			parts.LeftArm = model:FindFirstChild("Left Arm")
+			parts.Torso    = model:FindFirstChild("Torso")
+			parts.LeftArm  = model:FindFirstChild("Left Arm")
 			parts.RightArm = model:FindFirstChild("Right Arm")
-			parts.LeftLeg = model:FindFirstChild("Left Leg")
+			parts.LeftLeg  = model:FindFirstChild("Left Leg")
 			parts.RightLeg = model:FindFirstChild("Right Leg")
 		end
-		
 		return parts
 	end
 
@@ -4360,70 +4363,95 @@ do
 		end
 	end
 
-	-- Rainbow effect
+	-- ============================================================================
+	-- COLOR HEALTHBAR CORREGIDO
+	-- Usa HealthBarColorHigh / HealthBarColorLow con lerp real
+	-- ============================================================================
+	local function GetHealthBarColor(healthPercent)
+		if _G.ESPSettings.HealthBarGradient then
+			-- Lerp entre Low (0%) y High (100%) según HP
+			return _G.ESPSettings.HealthBarColorLow:Lerp(
+				_G.ESPSettings.HealthBarColorHigh,
+				healthPercent
+			)
+		else
+			-- Sin gradiente: si está lleno usa High, si no usa Low
+			return healthPercent > 0.5
+				and _G.ESPSettings.HealthBarColorHigh
+				or  _G.ESPSettings.HealthBarColorLow
+		end
+	end
+
 	local rainbowHue = 0
 
 	-- ============================================================================
 	-- CREAR ESP PARA UN MODELO
 	-- ============================================================================
-	
+
 	local function CreateESP(model)
-		if _G.ESPSettings.TrackedPlayers[model] then
-			return
-		end
-		
+		if _G.ESPSettings.TrackedPlayers[model] then return end
+
 		local head, torso = FindHeadAndTorso(model)
-		if not (head and torso) then
-			return
-		end
+		if not (head and torso) then return end
 
 		local player = Players:GetPlayerFromCharacter(model)
 		if player == localPlayer then return end
-		
+
 		print("Creando ESP para:", model.Name)
-		
-		-- ========== BOX ESP ==========
+
+		-- BOX OUTLINE
 		local boxOutline = Drawing.new("Square")
 		boxOutline.Thickness = 3
 		boxOutline.Filled = false
 		boxOutline.Color = _G.ESPSettings.BoxOutlineColor
 		boxOutline.Visible = false
 		boxOutline.ZIndex = 1
-		
+
+		-- BOX
 		local box = Drawing.new("Square")
 		box.Thickness = _G.ESPSettings.BoxThickness
 		box.Filled = false
 		box.Color = _G.ESPSettings.BoxColor
 		box.Visible = false
 		box.ZIndex = 2
-		
-		-- ========== HEALTH BAR ==========
+
+		-- BOX FILL ← NUEVO
+		local boxFill = Drawing.new("Square")
+		boxFill.Thickness = 1
+		boxFill.Filled = true
+		boxFill.Color = _G.ESPSettings.BoxFillColor
+		boxFill.Transparency = _G.ESPSettings.BoxFillTransparency
+		boxFill.Visible = false
+		boxFill.ZIndex = 1   -- detrás del box
+
+		-- HEALTH BAR OUTLINE
 		local healthBarOutline = Drawing.new("Square")
 		healthBarOutline.Thickness = 1
 		healthBarOutline.Filled = true
 		healthBarOutline.Color = Color3.fromRGB(0, 0, 0)
 		healthBarOutline.Visible = false
 		healthBarOutline.ZIndex = 1
-		
+
+		-- HEALTH BAR
 		local healthBar = Drawing.new("Square")
 		healthBar.Thickness = 1
 		healthBar.Filled = true
-		healthBar.Color = Color3.fromRGB(0, 255, 0)
+		healthBar.Color = _G.ESPSettings.HealthBarColorHigh
 		healthBar.Visible = false
 		healthBar.ZIndex = 2
-		
-		-- ========== NAME ==========
+
+		-- NAME
 		local nameLabel = Drawing.new("Text")
 		nameLabel.Text = model.Name
 		nameLabel.Size = _G.ESPSettings.NameSize
 		nameLabel.Center = true
 		nameLabel.Outline = _G.ESPSettings.NameOutline
-		nameLabel.OutlineColor = Color3.fromRGB(0, 0, 0)
+		nameLabel.OutlineColor = _G.ESPSettings.NameOutlineColor  -- ← CORREGIDO
 		nameLabel.Color = _G.ESPSettings.NameColor
 		nameLabel.Visible = false
 		nameLabel.ZIndex = 3
-		
-		-- ========== DISTANCE ==========
+
+		-- DISTANCE
 		local distanceLabel = Drawing.new("Text")
 		distanceLabel.Text = "0m"
 		distanceLabel.Size = 12
@@ -4433,15 +4461,15 @@ do
 		distanceLabel.Color = _G.ESPSettings.DistanceColor
 		distanceLabel.Visible = false
 		distanceLabel.ZIndex = 3
-		
-		-- ========== TRACER ==========
+
+		-- TRACER
 		local tracer = Drawing.new("Line")
 		tracer.Thickness = _G.ESPSettings.TracersThickness
 		tracer.Color = _G.ESPSettings.TracersColor
 		tracer.Visible = false
 		tracer.ZIndex = 1
-		
-		-- ========== SKELETON ==========
+
+		-- SKELETON LINES (principales)
 		local skeletonLines = {}
 		for i = 1, 15 do
 			local line = Drawing.new("Line")
@@ -4451,49 +4479,61 @@ do
 			line.ZIndex = 2
 			table.insert(skeletonLines, line)
 		end
-		
-		-- ========== GLOW (HIGHLIGHT) ==========
+
+		-- SKELETON OUTLINE LINES ← NUEVO
+		local skeletonOutlineLines = {}
+		for i = 1, 15 do
+			local line = Drawing.new("Line")
+			line.Thickness = _G.ESPSettings.SkeletonThickness + 2
+			line.Color = _G.ESPSettings.SkeletonOutlineColor
+			line.Visible = false
+			line.ZIndex = 1   -- detrás de las líneas principales
+			table.insert(skeletonOutlineLines, line)
+		end
+
+		-- HIGHLIGHT (GLOW)
 		local highlight = Instance.new("Highlight")
 		highlight.Name = "ESPGlow"
 		highlight.Adornee = model
 		highlight.FillColor = _G.ESPSettings.GlowColor
 		highlight.OutlineColor = _G.ESPSettings.GlowColor
-		highlight.FillTransparency = 1 - _G.ESPSettings.GlowTransparency  -- CORRECCIÓN AQUÍ
+		highlight.FillTransparency = 1 - _G.ESPSettings.GlowTransparency
 		highlight.OutlineTransparency = _G.ESPSettings.SoftESP and 0.8 or 0
 		highlight.Enabled = false
 		highlight.Parent = model
 
-		
-		-- ========== GUARDAR REFERENCIAS ==========
+		-- GUARDAR REFERENCIAS
 		_G.ESPSettings.TrackedPlayers[model] = {
-			box = box,
-			boxOutline = boxOutline,
-			healthBar = healthBar,
-			healthBarOutline = healthBarOutline,
-			nameLabel = nameLabel,
-			distanceLabel = distanceLabel,
-			tracer = tracer,
-			skeletonLines = skeletonLines,
-			highlight = highlight,
-			head = head,
-			torso = torso,
-			player = player,
-			humanoid = model:FindFirstChildOfClass("Humanoid")
+			box                 = box,
+			boxOutline          = boxOutline,
+			boxFill             = boxFill,             -- ← NUEVO
+			healthBar           = healthBar,
+			healthBarOutline    = healthBarOutline,
+			nameLabel           = nameLabel,
+			distanceLabel       = distanceLabel,
+			tracer              = tracer,
+			skeletonLines       = skeletonLines,
+			skeletonOutlineLines = skeletonOutlineLines, -- ← NUEVO
+			highlight           = highlight,
+			head                = head,
+			torso               = torso,
+			player              = player,
+			humanoid            = model:FindFirstChildOfClass("Humanoid")
 		}
-		
-		-- ========== CLEANUP ==========
+
+		-- CLEANUP
 		model.Destroying:Connect(function()
 			pcall(function()
 				box:Remove()
 				boxOutline:Remove()
+				boxFill:Remove()
 				healthBar:Remove()
 				healthBarOutline:Remove()
 				nameLabel:Remove()
 				distanceLabel:Remove()
 				tracer:Remove()
-				for _, line in ipairs(skeletonLines) do
-					line:Remove()
-				end
+				for _, line in ipairs(skeletonLines) do line:Remove() end
+				for _, line in ipairs(skeletonOutlineLines) do line:Remove() end
 				highlight:Destroy()
 			end)
 			_G.ESPSettings.TrackedPlayers[model] = nil
@@ -4503,7 +4543,7 @@ do
 	-- ============================================================================
 	-- INICIALIZAR ESP
 	-- ============================================================================
-	
+
 	_G.InitializeESP = function()
 		local count = 0
 		for _, model in ipairs(Workspace:GetChildren()) do
@@ -4523,347 +4563,299 @@ do
 	end)
 
 	-- ============================================================================
-	-- ACTUALIZAR ESP CADA FRAME
+	-- RENDER LOOP
 	-- ============================================================================
-	
+
 	RunService.RenderStepped:Connect(function(dt)
-		local cameraPos = Camera.CFrame.Position
+		local cameraPos    = Camera.CFrame.Position
 		local viewportSize = Camera.ViewportSize
-		
-		-- Rainbow mode
+
 		if _G.ESPSettings.RainbowMode then
 			rainbowHue = (rainbowHue + dt * _G.ESPSettings.RainbowSpeed) % 1
 		end
-		
+
 		for model, espData in pairs(_G.ESPSettings.TrackedPlayers) do
-			local head = espData.head
+			local head  = espData.head
 			local torso = espData.torso
-			
+
+			-- Helper: ocultar todo
+			local function hideAll()
+				espData.box.Visible              = false
+				espData.boxOutline.Visible        = false
+				espData.boxFill.Visible           = false
+				espData.healthBar.Visible         = false
+				espData.healthBarOutline.Visible  = false
+				espData.nameLabel.Visible         = false
+				espData.distanceLabel.Visible     = false
+				espData.tracer.Visible            = false
+				espData.highlight.Enabled         = false
+				for _, line in ipairs(espData.skeletonLines) do line.Visible = false end
+				for _, line in ipairs(espData.skeletonOutlineLines) do line.Visible = false end
+			end
+
 			-- Verificar que el modelo existe
 			if not (model and model.Parent and head and head.Parent and torso and torso.Parent) then
-				espData.box.Visible = false
-				espData.boxOutline.Visible = false
-				espData.healthBar.Visible = false
-				espData.healthBarOutline.Visible = false
-				espData.nameLabel.Visible = false
-				espData.distanceLabel.Visible = false
-				espData.tracer.Visible = false
-				espData.highlight.Enabled = false
-				for _, line in ipairs(espData.skeletonLines) do
-					line.Visible = false
-				end
-				continue
+				hideAll(); continue
 			end
 
-			-- Calcular distancia
 			local centerPos = (head.Position + torso.Position) * 0.5
-			local distance = (centerPos - cameraPos).Magnitude
-			
-			-- Render Distance Check
-			if distance > _G.ESPSettings.RenderDistance then
-				espData.box.Visible = false
-				espData.boxOutline.Visible = false
-				espData.healthBar.Visible = false
-				espData.healthBarOutline.Visible = false
-				espData.nameLabel.Visible = false
-				espData.distanceLabel.Visible = false
-				espData.tracer.Visible = false
-				espData.highlight.Enabled = false
-				for _, line in ipairs(espData.skeletonLines) do
-					line.Visible = false
-				end
-				continue
-			end
+			local distance  = (centerPos - cameraPos).Magnitude
 
-			-- Team check
+			-- ← CORREGIDO: ahora respeta MaxDistance (del slider UI) Y RenderDistance
+			local maxDist = math.min(_G.ESPSettings.MaxDistance, _G.ESPSettings.RenderDistance)
+			if distance > maxDist then hideAll(); continue end
+
 			local isTeammate = espData.player and IsTeammate(espData.player)
-			if isTeammate and _G.ESPSettings.TeamCheck then
-				espData.box.Visible = false
-				espData.boxOutline.Visible = false
-				espData.healthBar.Visible = false
-				espData.healthBarOutline.Visible = false
-				espData.nameLabel.Visible = false
-				espData.distanceLabel.Visible = false
-				espData.tracer.Visible = false
-				espData.highlight.Enabled = false
-				for _, line in ipairs(espData.skeletonLines) do
-					line.Visible = false
-				end
-				continue
-			end
-			
-			-- Visible check
+			if isTeammate and _G.ESPSettings.TeamCheck then hideAll(); continue end
+
 			local isVisible = true
 			if _G.ESPSettings.VisibleCheck then
 				isVisible = IsVisible(cameraPos, centerPos, model)
 			end
-			
+
 			local screenPos, onScreen = Camera:WorldToViewportPoint(centerPos)
-			
+
 			if onScreen and screenPos.Z > 0 then
-				-- Determinar color dinámico
+
 				local dynamicColor = GetDynamicColor(isTeammate, isVisible)
 				if _G.ESPSettings.RainbowMode then
 					dynamicColor = Color3.fromHSV(rainbowHue, 1, 1)
 				end
-				
-				-- ========== BOX ESP ==========
-				if _G.ESPSettings.BoxEnabled then
-					local boxWidth, boxHeight
-					
-					-- Sizing Type
+
+				-- ======================================================
+				-- BOX
+				-- ======================================================
+				local boxWidth, boxHeight, posX, posY
+
+				if _G.ESPSettings.BoxEnabled or _G.ESPSettings.BoxFillEnabled then
 					if _G.ESPSettings.SizingType == "Fixed" then
-						boxWidth = _G.ESPSettings.FixedSize and _G.ESPSettings.FixedSize.X or 100
-						boxHeight = _G.ESPSettings.FixedSize and _G.ESPSettings.FixedSize.Y or 150
+						boxWidth  = _G.ESPSettings.FixedSize.X
+						boxHeight = _G.ESPSettings.FixedSize.Y
 					elseif _G.ESPSettings.SizingType == "Scaled" then
-						-- CORRECCIÓN: Usar ScaleFactor correctamente
-						local baseScale = 1000 / distance
-						local scaleFactor = baseScale * (_G.ESPSettings.ScaleFactor or 1.0)
-						boxWidth = math.clamp(math.floor(4.5 * scaleFactor), 10, 300)
-						boxHeight = math.clamp(math.floor(6 * scaleFactor), 14, 400)
+						local s   = (1000 / distance) * (_G.ESPSettings.ScaleFactor or 1.0)
+						boxWidth  = math.clamp(math.floor(4.5 * s), 10, 300)
+						boxHeight = math.clamp(math.floor(6   * s), 14, 400)
 					else -- Dynamic
-						local scaleFactor = 1000 / (distance * _G.ESPSettings.FOV_TanHalf * 2)
-						boxWidth = math.clamp(math.floor(4.5 * scaleFactor), 10, 300)
-						boxHeight = math.clamp(math.floor(6 * scaleFactor), 14, 400)
+						local s   = 1000 / (distance * _G.ESPSettings.FOV_TanHalf * 2)
+						boxWidth  = math.clamp(math.floor(4.5 * s), 10, 300)
+						boxHeight = math.clamp(math.floor(6   * s), 14, 400)
 					end
-					
-					local posX = screenPos.X - boxWidth / 2
-					local posY = screenPos.Y - boxHeight / 2
-					
+					posX = screenPos.X - boxWidth  / 2
+					posY = screenPos.Y - boxHeight / 2
+				end
+
+				if _G.ESPSettings.BoxEnabled then
 					-- Outline
 					if _G.ESPSettings.BoxOutlineEnabled then
-						espData.boxOutline.Size = Vector2.new(boxWidth, boxHeight)
+						espData.boxOutline.Size     = Vector2.new(boxWidth, boxHeight)
 						espData.boxOutline.Position = Vector2.new(posX, posY)
-						espData.boxOutline.Color = _G.ESPSettings.BoxOutlineColor
-						espData.boxOutline.Visible = true
+						espData.boxOutline.Color    = _G.ESPSettings.BoxOutlineColor
+						espData.boxOutline.Visible  = true
 					else
 						espData.boxOutline.Visible = false
 					end
-					
-					-- Box
-					espData.box.Size = Vector2.new(boxWidth, boxHeight)
-					espData.box.Position = Vector2.new(posX, posY)
-					espData.box.Color = dynamicColor
+
+					espData.box.Size      = Vector2.new(boxWidth, boxHeight)
+					espData.box.Position  = Vector2.new(posX, posY)
+					espData.box.Color     = dynamicColor
 					espData.box.Thickness = _G.ESPSettings.BoxThickness
-					espData.box.Visible = true
-					
-					-- ========== HEALTH BAR ==========
-					if _G.ESPSettings.HealthBarEnabled and espData.humanoid then
-						local health = espData.humanoid.Health
-						local maxHealth = espData.humanoid.MaxHealth
-						local healthPercent = math.clamp(health / maxHealth, 0, 1)
-						
-						local barWidth = 4
-						local barHeight = boxHeight
-						local barX = posX - barWidth - 2
-						local barY = posY
-						
-						-- Outline
-						espData.healthBarOutline.Size = Vector2.new(barWidth, barHeight)
-						espData.healthBarOutline.Position = Vector2.new(barX, barY)
-						espData.healthBarOutline.Visible = true
-						
-						-- Health fill
-						local fillHeight = barHeight * healthPercent
-						espData.healthBar.Size = Vector2.new(barWidth - 2, fillHeight)
-						espData.healthBar.Position = Vector2.new(barX + 1, barY + barHeight - fillHeight)
-						
-						-- Color gradient
-						if _G.ESPSettings.HealthBarGradient then
-							if healthPercent > 0.5 then
-								espData.healthBar.Color = Color3.fromRGB(
-									math.floor((1 - healthPercent) * 2 * 255),
-									255,
-									0
-								)
-							else
-								espData.healthBar.Color = Color3.fromRGB(
-									255,
-									math.floor(healthPercent * 2 * 255),
-									0
-								)
-							end
-						else
-							espData.healthBar.Color = Color3.fromRGB(0, 255, 0)
-						end
-						
-						espData.healthBar.Visible = true
-					else
-						espData.healthBar.Visible = false
-						espData.healthBarOutline.Visible = false
-					end
-					
-					-- ========== NAME ==========
-					if _G.ESPSettings.NameEnabled then
-						espData.nameLabel.Position = Vector2.new(screenPos.X, posY - 16)
-						espData.nameLabel.Size = _G.ESPSettings.NameSize
-						espData.nameLabel.Outline = _G.ESPSettings.NameOutline
-						
-						-- Gradient effect (simulado con interpolación)
-						if _G.ESPSettings.NameGradient then
-							local gradientPos = (screenPos.X % 100) / 100
-							espData.nameLabel.Color = _G.ESPSettings.NameGradientColor1:Lerp(
-								_G.ESPSettings.NameGradientColor2, 
-								gradientPos
-							)
-						else
-							espData.nameLabel.Color = dynamicColor
-						end
-						
-						espData.nameLabel.Visible = true
-					else
-						espData.nameLabel.Visible = false
-					end
-					
-					-- ========== DISTANCE ==========
-					if _G.ESPSettings.DistanceEnabled then
-						local distanceMeters = math.floor(distance)
-						espData.distanceLabel.Text = tostring(distanceMeters) .. "m"
-						espData.distanceLabel.Position = Vector2.new(screenPos.X, posY + boxHeight + 2)
-						espData.distanceLabel.Color = _G.ESPSettings.DistanceColor
-						espData.distanceLabel.Outline = _G.ESPSettings.DistanceOutline
-						espData.distanceLabel.Visible = true
-					else
-						espData.distanceLabel.Visible = false
-					end
+					espData.box.Visible   = true
 				else
-					espData.box.Visible = false
+					espData.box.Visible        = false
 					espData.boxOutline.Visible = false
-					espData.healthBar.Visible = false
+				end
+
+				-- ======================================================
+				-- BOX FILL ← NUEVO
+				-- ======================================================
+				if _G.ESPSettings.BoxFillEnabled and boxWidth then
+					espData.boxFill.Size         = Vector2.new(boxWidth, boxHeight)
+					espData.boxFill.Position     = Vector2.new(posX, posY)
+					espData.boxFill.Color        = _G.ESPSettings.BoxFillColor
+					espData.boxFill.Transparency = _G.ESPSettings.BoxFillTransparency
+					espData.boxFill.Visible      = true
+				else
+					espData.boxFill.Visible = false
+				end
+
+				-- ======================================================
+				-- HEALTH BAR  ← COLOR CORREGIDO
+				-- ======================================================
+				if _G.ESPSettings.HealthBarEnabled and espData.humanoid and boxWidth then
+					local health        = espData.humanoid.Health
+					local maxHealth     = espData.humanoid.MaxHealth
+					local healthPercent = math.clamp(health / maxHealth, 0, 1)
+
+					local barWidth = 4
+					local barX     = posX - barWidth - 2
+					local barY     = posY
+
+					espData.healthBarOutline.Size     = Vector2.new(barWidth, boxHeight)
+					espData.healthBarOutline.Position = Vector2.new(barX, barY)
+					espData.healthBarOutline.Visible  = true
+
+					local fillHeight = boxHeight * healthPercent
+					espData.healthBar.Size     = Vector2.new(barWidth - 2, fillHeight)
+					espData.healthBar.Position = Vector2.new(barX + 1, barY + boxHeight - fillHeight)
+					-- ← USA los colores configurados por el usuario
+					espData.healthBar.Color   = GetHealthBarColor(healthPercent)
+					espData.healthBar.Visible = true
+				else
+					espData.healthBar.Visible        = false
 					espData.healthBarOutline.Visible = false
+				end
+
+				-- ======================================================
+				-- NAME  ← COLOR CORREGIDO
+				-- ======================================================
+				if _G.ESPSettings.NameEnabled then
+					local namePosY = posX and (posY - 16) or (screenPos.Y - 30)
+					espData.nameLabel.Position    = Vector2.new(screenPos.X, namePosY)
+					espData.nameLabel.Size        = _G.ESPSettings.NameSize
+					espData.nameLabel.Outline     = _G.ESPSettings.NameOutline
+					espData.nameLabel.OutlineColor = _G.ESPSettings.NameOutlineColor  -- ← CORREGIDO
+
+					if _G.ESPSettings.NameGradient then
+						local t = (screenPos.X % 100) / 100
+						espData.nameLabel.Color = _G.ESPSettings.NameGradientColor1:Lerp(
+							_G.ESPSettings.NameGradientColor2, t
+						)
+					else
+						-- ← CORREGIDO: usa NameColor, no dynamicColor
+						espData.nameLabel.Color = _G.ESPSettings.NameColor
+					end
+
+					espData.nameLabel.Visible = true
+				else
 					espData.nameLabel.Visible = false
+				end
+
+				-- ======================================================
+				-- DISTANCE
+				-- ======================================================
+				if _G.ESPSettings.DistanceEnabled then
+					local labelY = posX and (posY + boxHeight + 2) or (screenPos.Y + 16)
+					espData.distanceLabel.Text     = math.floor(distance) .. "m"
+					espData.distanceLabel.Position = Vector2.new(screenPos.X, labelY)
+					espData.distanceLabel.Color    = _G.ESPSettings.DistanceColor
+					espData.distanceLabel.Outline  = _G.ESPSettings.DistanceOutline
+					espData.distanceLabel.Visible  = true
+				else
 					espData.distanceLabel.Visible = false
 				end
-				
-				-- ========== TRACER ==========
+
+				-- ======================================================
+				-- TRACER
+				-- ======================================================
 				if _G.ESPSettings.TracersEnabled then
-					local fromPos
 					local origin = _G.ESPSettings.TracersOrigin
-					
-					if origin == "Top" then
-						fromPos = Vector2.new(viewportSize.X / 2, 0)
-					elseif origin == "Center" then
-						fromPos = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
-					elseif origin == "Bottom" then
-						fromPos = Vector2.new(viewportSize.X / 2, viewportSize.Y)
-					elseif origin == "Mouse" then
-						local mousePos = utility:MouseLocation()
-						fromPos = Vector2.new(mousePos.X, mousePos.Y)
-					elseif origin == "Top-Left" then
-						fromPos = Vector2.new(0, 0)
-					elseif origin == "Top-Right" then
-						fromPos = Vector2.new(viewportSize.X, 0)
-					elseif origin == "Bottom-Left" then
-						fromPos = Vector2.new(0, viewportSize.Y)
-					elseif origin == "Bottom-Right" then
-						fromPos = Vector2.new(viewportSize.X, viewportSize.Y)
-					else
-						-- Fallback a Bottom
-						fromPos = Vector2.new(viewportSize.X / 2, viewportSize.Y)
+					local fromPos
+					if     origin == "Top"          then fromPos = Vector2.new(viewportSize.X / 2, 0)
+					elseif origin == "Center"        then fromPos = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
+					elseif origin == "Bottom"        then fromPos = Vector2.new(viewportSize.X / 2, viewportSize.Y)
+					elseif origin == "Top-Left"      then fromPos = Vector2.new(0, 0)
+					elseif origin == "Top-Right"     then fromPos = Vector2.new(viewportSize.X, 0)
+					elseif origin == "Bottom-Left"   then fromPos = Vector2.new(0, viewportSize.Y)
+					elseif origin == "Bottom-Right"  then fromPos = Vector2.new(viewportSize.X, viewportSize.Y)
+					else                                  fromPos = Vector2.new(viewportSize.X / 2, viewportSize.Y)
 					end
-					
-					espData.tracer.From = fromPos
-					espData.tracer.To = Vector2.new(screenPos.X, screenPos.Y)
-					-- CORRECCIÓN: usar _G.ESPSettings.TracersColor en lugar de dynamicColor
-					espData.tracer.Color = _G.ESPSettings.TracersColor
+
+					espData.tracer.From      = fromPos
+					espData.tracer.To        = Vector2.new(screenPos.X, screenPos.Y)
+					espData.tracer.Color     = _G.ESPSettings.TracersColor
 					espData.tracer.Thickness = _G.ESPSettings.TracersThickness
-					espData.tracer.Visible = true
+					espData.tracer.Visible   = true
 				else
 					espData.tracer.Visible = false
 				end
-				
-				-- ========== SKELETON ==========
+
+				-- ======================================================
+				-- SKELETON + OUTLINE ← OUTLINE CORREGIDO
+				-- ======================================================
 				if _G.ESPSettings.SkeletonEnabled then
-					local parts = GetCharacterParts(model)
+					local parts     = GetCharacterParts(model)
 					local lineIndex = 1
-					
+
 					local function drawBone(part1, part2)
-						if part1 and part2 and part1.Parent and part2.Parent and lineIndex <= #espData.skeletonLines then
-							local pos1, visible1 = Camera:WorldToViewportPoint(part1.Position)
-							local pos2, visible2 = Camera:WorldToViewportPoint(part2.Position)
-							
-							if visible1 and visible2 then
-								local line = espData.skeletonLines[lineIndex]
-								line.From = Vector2.new(pos1.X, pos1.Y)
-								line.To = Vector2.new(pos2.X, pos2.Y)
-								-- CORRECCIÓN: usar _G.ESPSettings.SkeletonColor en lugar de dynamicColor
-								line.Color = _G.ESPSettings.SkeletonColor
-								line.Thickness = _G.ESPSettings.SkeletonThickness
-								line.Visible = true
-								lineIndex = lineIndex + 1
-							end
+						if not (part1 and part2 and part1.Parent and part2.Parent) then return end
+						if lineIndex > #espData.skeletonLines then return end
+
+						local pos1, vis1 = Camera:WorldToViewportPoint(part1.Position)
+						local pos2, vis2 = Camera:WorldToViewportPoint(part2.Position)
+
+						if vis1 and vis2 then
+							local p1 = Vector2.new(pos1.X, pos1.Y)
+							local p2 = Vector2.new(pos2.X, pos2.Y)
+
+							-- Outline primero (ZIndex 1)
+							local outline = espData.skeletonOutlineLines[lineIndex]
+							outline.From      = p1
+							outline.To        = p2
+							outline.Color     = _G.ESPSettings.SkeletonOutlineColor
+							outline.Thickness = _G.ESPSettings.SkeletonThickness + 2
+							outline.Visible   = true
+
+							-- Línea principal encima (ZIndex 2)
+							local line = espData.skeletonLines[lineIndex]
+							line.From      = p1
+							line.To        = p2
+							line.Color     = _G.ESPSettings.SkeletonColor
+							line.Thickness = _G.ESPSettings.SkeletonThickness
+							line.Visible   = true
+
+							lineIndex = lineIndex + 1
 						end
 					end
-					
-					-- R15 Skeleton
-					if parts.UpperTorso then
-						drawBone(parts.Head, parts.UpperTorso)
-						drawBone(parts.UpperTorso, parts.LowerTorso)
-						drawBone(parts.UpperTorso, parts.RightUpperArm)
-						drawBone(parts.RightUpperArm, parts.RightLowerArm)
-						drawBone(parts.RightLowerArm, parts.RightHand)
-						drawBone(parts.UpperTorso, parts.LeftUpperArm)
+
+					if parts.UpperTorso then  -- R15
+						drawBone(parts.Head,         parts.UpperTorso)
+						drawBone(parts.UpperTorso,   parts.LowerTorso)
+						drawBone(parts.UpperTorso,   parts.RightUpperArm)
+						drawBone(parts.RightUpperArm,parts.RightLowerArm)
+						drawBone(parts.RightLowerArm,parts.RightHand)
+						drawBone(parts.UpperTorso,   parts.LeftUpperArm)
 						drawBone(parts.LeftUpperArm, parts.LeftLowerArm)
 						drawBone(parts.LeftLowerArm, parts.LeftHand)
-						drawBone(parts.LowerTorso, parts.RightUpperLeg)
-						drawBone(parts.RightUpperLeg, parts.RightLowerLeg)
-						drawBone(parts.RightLowerLeg, parts.RightFoot)
-						drawBone(parts.LowerTorso, parts.LeftUpperLeg)
+						drawBone(parts.LowerTorso,   parts.RightUpperLeg)
+						drawBone(parts.RightUpperLeg,parts.RightLowerLeg)
+						drawBone(parts.RightLowerLeg,parts.RightFoot)
+						drawBone(parts.LowerTorso,   parts.LeftUpperLeg)
 						drawBone(parts.LeftUpperLeg, parts.LeftLowerLeg)
 						drawBone(parts.LeftLowerLeg, parts.LeftFoot)
-					-- R6 Skeleton
-					elseif parts.Torso then
-						drawBone(parts.Head, parts.Torso)
-						drawBone(parts.Torso, parts.RightArm)
-						drawBone(parts.Torso, parts.LeftArm)
-						drawBone(parts.Torso, parts.RightLeg)
-						drawBone(parts.Torso, parts.LeftLeg)
+					elseif parts.Torso then  -- R6
+						drawBone(parts.Head,   parts.Torso)
+						drawBone(parts.Torso,  parts.RightArm)
+						drawBone(parts.Torso,  parts.LeftArm)
+						drawBone(parts.Torso,  parts.RightLeg)
+						drawBone(parts.Torso,  parts.LeftLeg)
 					end
-					
+
+					-- Ocultar líneas no usadas
 					for i = lineIndex, #espData.skeletonLines do
-						espData.skeletonLines[i].Visible = false
+						espData.skeletonLines[i].Visible        = false
+						espData.skeletonOutlineLines[i].Visible = false
 					end
 				else
-					for _, line in ipairs(espData.skeletonLines) do
-						line.Visible = false
-					end
+					for _, line in ipairs(espData.skeletonLines) do line.Visible = false end
+					for _, line in ipairs(espData.skeletonOutlineLines) do line.Visible = false end
 				end
-				
-				-- ========== GLOW ==========
+
+				-- ======================================================
+				-- GLOW
+				-- ======================================================
 				if _G.ESPSettings.GlowEnabled then
-					espData.highlight.FillColor = _G.ESPSettings.GlowColor
+					espData.highlight.FillColor    = _G.ESPSettings.GlowColor
 					espData.highlight.OutlineColor = _G.ESPSettings.GlowColor
-					
-					-- CORRECCIÓN: Highlight usa 0=visible, 1=invisible
-					-- Pero el slider dice "Transparency" así que invertimos
 					local fillTrans = 1 - _G.ESPSettings.GlowTransparency
-					
-					if _G.ESPSettings.SoftESP then
-						espData.highlight.OutlineTransparency = 0.7
-						espData.highlight.FillTransparency = math.max(0, fillTrans - 0.3)
-					else
-						espData.highlight.OutlineTransparency = 0
-						espData.highlight.FillTransparency = fillTrans
-					end
-					
+					espData.highlight.OutlineTransparency = _G.ESPSettings.SoftESP and 0.7 or 0
+					espData.highlight.FillTransparency    = _G.ESPSettings.SoftESP and math.max(0, fillTrans - 0.3) or fillTrans
 					espData.highlight.Enabled = true
 				else
 					espData.highlight.Enabled = false
 				end
-				
+
 			else
-				-- Fuera de pantalla
-				espData.box.Visible = false
-				espData.boxOutline.Visible = false
-				espData.healthBar.Visible = false
-				espData.healthBarOutline.Visible = false
-				espData.nameLabel.Visible = false
-				espData.distanceLabel.Visible = false
-				espData.tracer.Visible = false
-				espData.highlight.Enabled = false
-				for _, line in ipairs(espData.skeletonLines) do
-					line.Visible = false
-				end
+				hideAll()
 			end
 		end
 	end)
