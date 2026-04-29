@@ -4412,6 +4412,7 @@ local function CreateESP(model)
     local boxFill = Drawing.new("Square")
     boxFill.Thickness = 1; boxFill.Filled = true
     boxFill.Color = _G.ESPSettings.BoxFillColor
+    boxFill.Transparency = _G.ESPSettings.BoxFillTransparency
     boxFill.Visible = false; boxFill.ZIndex = 1
  
     local box = Drawing.new("Square")
@@ -4755,6 +4756,7 @@ RunService.RenderStepped:Connect(function(dt)
                 d.boxFill.Size         = Vector2.new(boxWidth, boxHeight)
                 d.boxFill.Position     = Vector2.new(posX, posY)
                 d.boxFill.Color        = _G.ESPSettings.BoxFillColor
+                d.boxFill.Transparency = _G.ESPSettings.BoxFillTransparency
                 d.boxFill.Visible      = true
             else
                 d.boxFill.Visible = false
@@ -5655,7 +5657,7 @@ end)
 	end
 	
 	-- Teclas de control
-	uis.InputBegan:Connect(function(input, gameProcessed)
+	UserInputService.InputBegan:Connect(function(input, gameProcessed)
 		if gameProcessed then return end
 		
 		if input.KeyCode == _G.RadarSettings.ToggleKey then
